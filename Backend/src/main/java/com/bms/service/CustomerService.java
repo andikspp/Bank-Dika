@@ -1,0 +1,102 @@
+package com.bms.service;
+
+import com.bms.model.Customer;
+import com.bms.model.User;
+import com.bms.dto.customerManagement.GetCustomerDTO;
+import com.bms.dto.customerManagement.CreateCustomerDTO;
+import com.bms.repository.CustomerRepository;
+import com.bms.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+/**
+ * Service untuk manajemen customer.
+ * Operasi:
+ * - Mendapatkan semua customer.
+ * - Membuat customer baru dan mengaitkannya dengan user.
+ * Menggunakan repository CustomerRepository dan UserRepository untuk operasi
+ * database.
+ * Mengembalikan data dalam bentuk DTO (Data Transfer Object).
+ */
+@Service
+public class CustomerService {
+    private final CustomerRepository customerRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    /**
+     * Constructor untuk CustomerService
+     * 
+     * @param customerRepository
+     */
+    public CustomerService(CustomerRepository customerRepository) {
+        try {
+            this.customerRepository = customerRepository;
+        } catch (Exception e) {
+            throw new RuntimeException("Error initializing CustomerService: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get all customers
+     * 
+     * @param customer
+     * @param userId
+     * @return
+     */
+    public List<GetCustomerDTO> getAllCustomers() {
+        try {
+            List<Customer> customers = customerRepository.findAll();
+            return customers.stream()
+                    .map(customer -> new GetCustomerDTO(
+                            customer.getId(),
+                            customer.getFullName(),
+                            customer.getAddress(),
+                            customer.getPhone(),
+                            customer.getEmail(),
+                            customer.getKtpNumber(),
+                            customer.getRegistrationDate()))
+                    .toList();
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching all customers: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Create new customer and link to user
+     * pakai dto CreateCustomerDTO
+     * 
+     * @param customer
+     * @param userId
+     * @return
+     */
+    public Customer createCustomer(Customer customer, Long userId) {
+        try {
+            System.out.println("CustomerService@Creating customer: " + customer + " for userId: " + userId);
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " not found"));
+
+            if (user.getCustomer() != null) {
+                throw new IllegalArgumentException("User with ID " + userId + " already has a customer");
+            }
+
+            // Save customer terlebih dahulu agar dapat ID
+            Customer savedCustomer = customerRepository.save(customer);
+
+            // Set customer ke user
+            user.setCustomer(savedCustomer);
+
+            // Save user agar relasi user-customer tersimpan
+            userRepository.save(user);
+
+            System.out.println("CustomerService@Saved customer: " + savedCustomer + " for user: " + user);
+
+            return savedCustomer;
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating customer: " + e.getMessage());
+        }
+    }
+}
