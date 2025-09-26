@@ -20,6 +20,7 @@ const TellerDashboard: React.FC = () => (
                 description="Lihat dan kelola informasi nasabah."
                 buttonLabel="Kelola Nasabah"
                 buttonColor="#38a169"
+                onClick={() => window.location.href = "/teller/customers"}
             />
             <DashboardCard
                 icon="📈"

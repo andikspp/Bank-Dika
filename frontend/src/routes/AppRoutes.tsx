@@ -14,6 +14,7 @@ const AddUserPage = React.lazy(() => import("../pages/admin/userManagement/AddUs
 const EditUserPage = React.lazy(() => import("../pages/admin/userManagement/EditUserPage"));
 const ViewUserPage = React.lazy(() => import("../pages/admin/userManagement/ViewUserPage"));
 const AccountManagementPage = React.lazy(() => import("../pages/admin/accountManagement/AccountManagementPage"));
+const CustomerManagementPage = React.lazy(() => import("../pages/teller/customerManagement/CustomerManagementPage"));
 
 const AppRoutes: React.FC = () => {
     const initialUser = useInitialUser();
@@ -83,6 +84,16 @@ const AppRoutes: React.FC = () => {
                                 <ProtectedRoute requiredRole="ADMIN">
                                     <MainLayout>
                                         <AccountManagementPage />
+                                    </MainLayout>
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/teller/customers"
+                            element={
+                                <ProtectedRoute requiredRole="TELLER">
+                                    <MainLayout>
+                                        <CustomerManagementPage />
                                     </MainLayout>
                                 </ProtectedRoute>
                             }

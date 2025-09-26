@@ -13,25 +13,34 @@ const AdminDashboard: React.FC = () => {
             <div className="dashboard-grid">
                 <DashboardCard
                     icon="👥"
-                    title="Manajemen Pengguna"
-                    description="Lihat, tambah, edit, dan hapus data pengguna sistem."
+                    title="Manajemen User"
+                    description="Kelola data pengguna sistem."
                     buttonLabel="Kelola Pengguna"
                     buttonColor="#3182ce"
                     onClick={() => navigate("/admin/users")}
                 />
                 <DashboardCard
-                    icon="🛡️"
-                    title="Manajemen Role"
-                    description="Atur hak akses dan peran pengguna dalam sistem."
-                    buttonLabel="Kelola Role"
+                    icon="💼"
+                    title="Manajemen Rekening"
+                    description="Kelola semua rekening nasabah."
+                    buttonLabel="Kelola Rekening"
                     buttonColor="#38a169"
+                    onClick={() => navigate("/admin/accounts")}
                 />
                 <DashboardCard
-                    icon="⚙️"
-                    title="Pengaturan Sistem"
-                    description="Ubah konfigurasi dan preferensi aplikasi."
-                    buttonLabel="Pengaturan"
+                    icon="💳"
+                    title="Manajemen Transaksi"
+                    description="Pantau dan kelola semua transaksi."
+                    buttonLabel="Pantau Transaksi"
                     buttonColor="#d69e2e"
+                    onClick={() => navigate("/admin/transactions")}
+                />
+                <DashboardCard
+                    icon="📊"
+                    title="Laporan & Statistik"
+                    description="Lihat laporan keuangan dan statistik."
+                    buttonLabel="Lihat Laporan"
+                    buttonColor="#805ad5"
                 />
             </div>
         </div>

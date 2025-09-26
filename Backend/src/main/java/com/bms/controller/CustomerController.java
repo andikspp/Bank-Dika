@@ -4,6 +4,7 @@ import com.bms.model.Customer;
 import com.bms.service.CustomerService;
 import com.bms.dto.customerManagement.GetCustomerDTO;
 import com.bms.dto.customerManagement.CreateCustomerDTO;
+import com.bms.dto.customerManagement.UpdateCustomerDTO;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,4 +61,38 @@ public class CustomerController {
         }
     }
 
+    /**
+     * Update existing customer
+     * 
+     * @param id
+     * @param req
+     * @return
+     */
+    @PutMapping("/{id}")
+    public Customer updateCustomer(@PathVariable Long id, @RequestBody UpdateCustomerDTO req) {
+        try {
+            return customerService.updateCustomer(id, req);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating customer", e);
+        }
+    }
+
+    /**
+     * Delete customer by ID
+     * 
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    public void deleteCustomer(@PathVariable Long id) {
+        try {
+            customerService.deleteCustomer(id);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error deleting customer", e);
+        }
+    }
 }

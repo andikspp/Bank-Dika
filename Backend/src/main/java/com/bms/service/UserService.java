@@ -128,9 +128,9 @@ public class UserService {
                     user.getUsername(),
                     user.getRole().getName(),
                     customer != null ? customer.getFullName() : null,
-                    customer != null ? customer.getAddress() : null,
-                    customer != null ? customer.getPhone() : null,
                     customer != null ? customer.getEmail() : null,
+                    customer != null ? customer.getPhone() : null,
+                    customer != null ? customer.getAddress() : null,
                     customer != null ? customer.getKtpNumber() : null,
                     customer != null ? customer.getRegistrationDate() : null,
                     accounts);

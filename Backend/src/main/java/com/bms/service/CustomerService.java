@@ -4,6 +4,7 @@ import com.bms.model.Customer;
 import com.bms.model.User;
 import com.bms.dto.customerManagement.GetCustomerDTO;
 import com.bms.dto.customerManagement.CreateCustomerDTO;
+import com.bms.dto.customerManagement.UpdateCustomerDTO;
 import com.bms.repository.CustomerRepository;
 import com.bms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +54,9 @@ public class CustomerService {
                     .map(customer -> new GetCustomerDTO(
                             customer.getId(),
                             customer.getFullName(),
-                            customer.getAddress(),
-                            customer.getPhone(),
                             customer.getEmail(),
+                            customer.getPhone(),
+                            customer.getAddress(),
                             customer.getKtpNumber(),
                             customer.getRegistrationDate()))
                     .toList();
@@ -97,6 +98,51 @@ public class CustomerService {
             return savedCustomer;
         } catch (Exception e) {
             throw new RuntimeException("Error creating customer: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Update existing customer by Customer ID
+     * pakai dto UpdateCustomerDTO
+     * 
+     * @param id
+     * @param req
+     * @return
+     */
+    public Customer updateCustomer(Long id, UpdateCustomerDTO req) {
+        try {
+            Customer existingCustomer = customerRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Customer with ID " + id + " not found"));
+
+            // Update fields
+            existingCustomer.setFullName(req.getFullName());
+            existingCustomer.setEmail(req.getEmail());
+            existingCustomer.setPhone(req.getPhone());
+            existingCustomer.setAddress(req.getAddress());
+            existingCustomer.setKtpNumber(req.getKtpNumber());
+
+            // Simpan perubahan
+            Customer updatedCustomer = customerRepository.save(existingCustomer);
+            return updatedCustomer;
+        } catch (Exception e) {
+            throw new RuntimeException("Error updating customer: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Delete customer by ID
+     * 
+     * @param id
+     * @return
+     */
+    public void deleteCustomer(Long id) {
+        try {
+            Customer existingCustomer = customerRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Customer with ID " + id + " not found"));
+
+            customerRepository.delete(existingCustomer);
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting customer: " + e.getMessage());
         }
     }
 }
