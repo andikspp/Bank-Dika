@@ -15,6 +15,8 @@ const EditUserPage = React.lazy(() => import("../pages/admin/userManagement/Edit
 const ViewUserPage = React.lazy(() => import("../pages/admin/userManagement/ViewUserPage"));
 const AccountManagementPage = React.lazy(() => import("../pages/admin/accountManagement/AccountManagementPage"));
 const CustomerManagementPage = React.lazy(() => import("../pages/teller/customerManagement/CustomerManagementPage"));
+const CustomerViewPage = React.lazy(() => import("../pages/teller/customerManagement/CustomerViewPage"));
+const DepositeManagementPage = React.lazy(() => import("../pages/teller/depositManagement/DepositManagementPage"));
 
 const AppRoutes: React.FC = () => {
     const initialUser = useInitialUser();
@@ -94,6 +96,26 @@ const AppRoutes: React.FC = () => {
                                 <ProtectedRoute requiredRole="TELLER">
                                     <MainLayout>
                                         <CustomerManagementPage />
+                                    </MainLayout>
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/teller/customers/detail/:id"
+                            element={
+                                <ProtectedRoute requiredRole="TELLER">
+                                    <MainLayout>
+                                        <CustomerViewPage />
+                                    </MainLayout>
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/teller/deposit"
+                            element={
+                                <ProtectedRoute requiredRole="TELLER">
+                                    <MainLayout>
+                                        <DepositeManagementPage />
                                     </MainLayout>
                                 </ProtectedRoute>
                             }

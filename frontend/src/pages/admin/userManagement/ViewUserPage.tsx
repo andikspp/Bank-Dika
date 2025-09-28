@@ -6,6 +6,9 @@ import { Account } from "../../../types/Account";
 import axios from "axios";
 import "../../../styles/viewUserPage.css";
 import AddAccountModal from "../../../components/accountManagement/modal/AddAccountModal";
+import CustomerDetailCard from "../../../components/card/CustomerDetailCard";
+import AccountDetailModal from "../../../components/customerManagement/modal/DetailAccountModal";
+import "../../../styles/modal.css";
 import Swal from "sweetalert2";
 
 const ViewUserPage: React.FC = () => {
@@ -14,7 +17,6 @@ const ViewUserPage: React.FC = () => {
     const navigate = useNavigate();
     const [customer, setCustomer] = useState<Customer | null>(null);
     const [user, setUser] = useState<User | null>(null);
-    const [Accounts, setAccounts] = useState<Account[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -33,9 +35,8 @@ const ViewUserPage: React.FC = () => {
     });
     const [loadingAccount, setLoadingAccount] = useState(false);
     const [showAddAccountModal, setShowAddAccountModal] = useState(false);
-
-    // debug isi id customer
-    console.log("Customer ID:", customer?.id);
+    const [showAccountDetailModal, setShowAccountDetailModal] = useState(false);
+    const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
     useEffect(() => {
         if (id && username) {
@@ -59,8 +60,7 @@ const ViewUserPage: React.FC = () => {
             const response = await axios.get(`http://localhost:8080/api/users/customers/${userId}`);
             console.log("Fetched customer details:", response.data);
             setCustomer(response.data);
-            setUser(response.data.user); // Assuming the API returns user details within customer data
-            setAccounts(response.data.accounts || []);
+            setUser(response.data.user);
             setLoading(false);
         } catch (err) {
             setError("Failed to fetch user details.");
@@ -78,8 +78,6 @@ const ViewUserPage: React.FC = () => {
     const handleCreateCustomer = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // debug data customer baru
-            alert(JSON.stringify(newCustomerData));
             const token = localStorage.getItem("token");
             const response = await axios.post("http://localhost:8080/api/customers", {
                 userId: id,
@@ -94,9 +92,10 @@ const ViewUserPage: React.FC = () => {
             setIsEditing(false);
             setError(null);
             Swal.fire("Berhasil", "Data customer berhasil dibuat.", "success");
-            fetchCustomerDetails(id!); // Refresh customer details
+            fetchCustomerDetails(id!);
         } catch (err) {
             console.error("Failed to create customer:", err);
+            Swal.fire("Gagal", "Gagal membuat data customer.", "error");
         }
     };
 
@@ -124,7 +123,7 @@ const ViewUserPage: React.FC = () => {
                 customerId: customer?.id ?? 0,
             });
             Swal.fire("Berhasil", "Rekening berhasil ditambahkan.", "success");
-            fetchCustomerDetails(id!); // Refresh data rekening
+            fetchCustomerDetails(id!);
         } catch (err: any) {
             const msg =
                 err.response?.data?.message ||
@@ -136,21 +135,89 @@ const ViewUserPage: React.FC = () => {
         }
     };
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('id-ID', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+    const handleAddAccount = () => {
+        setShowAddAccountModal(true);
+    };
+
+    const handleDeleteAccount = (accountId: number) => {
+        Swal.fire({
+            title: 'Yakin ingin menghapus rekening ini?',
+            text: "Tindakan ini tidak dapat dibatalkan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const token = localStorage.getItem("token");
+                    await axios.delete(`http://localhost:8080/api/accounts/${accountId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    fetchCustomerDetails(id!);
+                    Swal.fire('Dihapus!', 'Rekening telah dihapus.', 'success');
+                } catch (err: any) {
+                    Swal.fire('Gagal!', 'Gagal menghapus rekening.', 'error');
+                }
+            }
         });
     };
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR'
-        }).format(amount);
+    const handleToggleAccountStatus = async (accountId: number, currentStatus: string) => {
+        const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+        const actionText = newStatus === 'ACTIVE' ? 'mengaktifkan' : 'menonaktifkan';
+
+        const result = await Swal.fire({
+            title: `Yakin ingin ${actionText} rekening ini?`,
+            text: `Status rekening akan diubah menjadi ${newStatus === 'ACTIVE' ? 'Aktif' : 'Nonaktif'}`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: newStatus === 'ACTIVE' ? '#10b981' : '#f59e0b',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: `Ya, ${actionText}!`,
+            cancelButtonText: 'Batal'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const token = localStorage.getItem("token");
+                await axios.patch(`http://localhost:8080/api/accounts/${accountId}/status`,
+                    { status: newStatus },
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
+                );
+
+                fetchCustomerDetails(id!);
+                Swal.fire(
+                    'Berhasil!',
+                    `Rekening berhasil di${actionText}.`,
+                    'success'
+                );
+            } catch (err: any) {
+                Swal.fire(
+                    'Gagal!',
+                    `Gagal ${actionText} rekening.`,
+                    'error'
+                );
+            }
+        }
     };
 
+    const handleShowAccountDetail = (account: Account) => {
+        setSelectedAccount(account);
+        setShowAccountDetailModal(true);
+    };
+
+    const handleCloseAccountDetailModal = () => {
+        setShowAccountDetailModal(false);
+        setSelectedAccount(null);
+    };
+
+
+    // Loading State
     if (loading) {
         return (
             <div className="view-user-page">
@@ -162,6 +229,7 @@ const ViewUserPage: React.FC = () => {
         );
     }
 
+    // Error State
     if (error) {
         return (
             <div className="view-user-page">
@@ -169,15 +237,20 @@ const ViewUserPage: React.FC = () => {
                     <div className="error-icon">⚠️</div>
                     <h3>Terjadi Kesalahan</h3>
                     <p>{error}</p>
-                    <button className="btn btn-secondary" onClick={() => navigate(-1)}>
-                        Kembali
-                    </button>
+                    <div className="error-actions">
+                        <button className="btn btn-primary" onClick={() => fetchCustomerDetails(id!)}>
+                            🔄 Coba Lagi
+                        </button>
+                        <button className="btn btn-secondary" onClick={() => navigate(-1)}>
+                            ← Kembali
+                        </button>
+                    </div>
                 </div>
             </div>
         );
     }
 
-    // Jika customer belum ada (semua field null)
+    // Empty Customer State
     const isCustomerEmpty = !customer?.fullName && !customer?.email && !customer?.phone;
 
     if (isCustomerEmpty) {
@@ -191,12 +264,21 @@ const ViewUserPage: React.FC = () => {
                         <h1>👤 Detail User</h1>
                         <p>Username: {username}</p>
                     </div>
+                    <div className="header-actions" style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => fetchCustomerDetails(id!)}
+                        >
+                            <span className="btn-icon">🔄</span>
+                            Refresh
+                        </button>
+                    </div>
                 </div>
 
                 <div className="empty-customer-container">
                     <div className="empty-state">
                         <div className="empty-icon">📝</div>
-                        <h3>Data Customer Belum Ada</h3>
+                        <h3>Data Nasabah Belum Ada</h3>
                         <p>User ini belum memiliki data customer. Silakan buat data customer untuk user ini.</p>
 
                         {!isEditing ? (
@@ -287,6 +369,7 @@ const ViewUserPage: React.FC = () => {
         );
     }
 
+    // Main Content with Customer Data
     return (
         <div className="view-user-page">
             <div className="page-header">
@@ -294,90 +377,33 @@ const ViewUserPage: React.FC = () => {
                     ← Kembali
                 </button>
                 <div className="header-content">
-                    <h1>👤 Detail Customer</h1>
-                    <p>Informasi lengkap data customer</p>
+                    <h1>👤 Detail Nasabah</h1>
+                    <p>Informasi lengkap data nasabah - {customer.fullName}</p>
+                </div>
+                <div className="header-actions" style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => fetchCustomerDetails(id!)}
+                    >
+                        <span className="btn-icon">🔄</span>
+                        Refresh
+                    </button>
                 </div>
             </div>
 
             <div className="content-grid">
-
-                {/* Customer Info Card */}
-                <div className="info-card full-width">
-                    <div className="card-header">
-                        <h3>👨‍💼 Data Customer</h3>
-                    </div>
-                    <div className="card-content">
-                        <div className="info-item">
-                            <span className="label">Nama Lengkap</span>
-                            <span className="value">{customer?.fullName}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="label">Email</span>
-                            <span className="value">{customer?.email}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="label">No. Telepon</span>
-                            <span className="value">{customer?.phone || "-"}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="label">No. KTP</span>
-                            <span className="value">{customer?.ktpNumber}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="label">Alamat</span>
-                            <span className="value">{customer?.address || "-"}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="label">Tanggal Registrasi</span>
-                            <span className="value">{formatDate(customer?.registrationDate!)}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Accounts Card */}
-                <div className="info-card full-width">
-                    <div className="card-header">
-                        <h3>💳 Rekening ({customer?.accounts?.length || 0})</h3>
-                        <button
-                            className="btn btn-sm btn-primary"
-                            onClick={() => setShowAddAccountModal(true)}
-                        >
-                            ➕ Tambah Rekening
-                        </button>
-                    </div>
-                    <div className="card-content">
-                        {customer?.accounts && customer.accounts.length > 0 ? (
-                            <div className="accounts-grid">
-                                {customer.accounts.map((account) => (
-                                    <div key={account.id} className="account-card">
-                                        <div className="account-header">
-                                            <span className="account-type">
-                                                {account.accountType === 'SAVINGS' ? '💰' : '🏦'}
-                                                {account.accountType === 'SAVINGS' ? 'Tabungan' : 'Giro'}
-                                            </span>
-                                            <span className={`status-badge ${account.status.toLowerCase()}`}>
-                                                {account.status === 'ACTIVE' ? 'Aktif' : 'Nonaktif'}
-                                            </span>
-                                        </div>
-                                        <div className="account-number">
-                                            {account.accountNumber}
-                                        </div>
-                                        <div className="account-balance">
-                                            {formatCurrency(account.balance)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="empty-accounts">
-                                <div className="empty-icon">💳</div>
-                                <p>Belum ada rekening</p>
-                                <small>Customer ini belum memiliki rekening bank</small>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                {/* Menggunakan CustomerDetailCard Component */}
+                <CustomerDetailCard
+                    customer={customer!}
+                    onAddAccount={handleAddAccount}
+                    showAddAccountButton={true}
+                    onDeleteAccount={handleDeleteAccount}
+                    onToggleAccountStatus={handleToggleAccountStatus}
+                    onShowAccountDetail={handleShowAccountDetail}
+                />
             </div>
+
+            {/* Add Account Modal */}
             {showAddAccountModal && (
                 <AddAccountModal
                     open={showAddAccountModal}
@@ -387,6 +413,14 @@ const ViewUserPage: React.FC = () => {
                     newAccount={newAccount}
                     loading={loadingAccount}
                     hideCustomerIdInput
+                />
+            )}
+
+            {showAccountDetailModal && (
+                <AccountDetailModal
+                    open={showAccountDetailModal}
+                    account={selectedAccount}
+                    onClose={handleCloseAccountDetailModal}
                 />
             )}
         </div>

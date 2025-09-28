@@ -34,7 +34,7 @@ public class Customer {
     @Column(nullable = false)
     private LocalDateTime registrationDate;
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Account> accounts;
 
     public Customer() {

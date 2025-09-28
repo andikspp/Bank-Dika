@@ -46,4 +46,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return true jika user sudah memiliki customer, false jika belum
      */
     boolean existsById(Long id);
+
+    /**
+     * find by customer id
+     * 
+     * @param customerId
+     * @return User
+     */
+    User findByCustomer_Id(Long customerId);
 }

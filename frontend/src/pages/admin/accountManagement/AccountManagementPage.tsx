@@ -4,6 +4,7 @@ import { Account } from "../../../types/Account";
 import "../../../styles/accountManagementPage.css";
 import "../../../styles/modal.css";
 import AddAccountModal from "../../../components/accountManagement/modal/AddAccountModal";
+import AccountDetailModal from "../../../components/customerManagement/modal/DetailAccountModal";
 import Swal from "sweetalert2";
 
 const AccountManagementPage: React.FC = () => {
@@ -13,6 +14,8 @@ const AccountManagementPage: React.FC = () => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [customers, setCustomers] = useState<{ id: number; fullName: string }[]>([]);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
     // State untuk tambah rekening
     const [newAccount, setNewAccount] = useState({
@@ -99,6 +102,16 @@ const AccountManagementPage: React.FC = () => {
 
     const handleToggleStatus = async (accountId: number, currentStatus: string) => {
         try {
+            const confirm = await Swal.fire({
+                title: 'Ubah Status Rekening',
+                text: `Yakin ingin mengubah status rekening ini menjadi ${currentStatus === "ACTIVE" ? "Nonaktif" : "Aktif"}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, ubah',
+                cancelButtonText: 'Batal'
+            });
+            if (!confirm.isConfirmed) return;
+
             const newStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
             await axios.patch(
                 `http://localhost:8080/api/accounts/${accountId}/status`,
@@ -144,24 +157,46 @@ const AccountManagementPage: React.FC = () => {
         return type === 'SAVINGS' ? '💰' : '🏦';
     };
 
+    const handleShowDetail = (account: Account) => {
+        setSelectedAccount(account);
+        setShowDetailModal(true);
+    };
+
     return (
-        <div className="account-management">
-            <div className="header">
+        <div className="account-management-container">
+            {/* Header Section - Updated to match UserManagement style */}
+            <div className="page-header">
                 <div className="header-content">
-                    <h1>🏦 Manajemen Rekening</h1>
-                    <p>Kelola semua rekening nasabah dengan mudah</p>
+                    <div className="header-title">
+                        <span className="header-icon">🏦</span>
+                        <h1>Manajemen Rekening</h1>
+                    </div>
+                    <p className="header-subtitle">
+                        Kelola semua rekening nasabah Bank Dika dengan mudah dan efisien.
+                    </p>
                 </div>
-                <button
-                    className="btn btn-primary"
-                    onClick={() => setShowAddForm(!showAddForm)}
-                >
-                    ➕ Tambah Rekening
-                </button>
+                <div className="header-actions">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={fetchAccounts}
+                        disabled={loading}
+                    >
+                        <span className={`btn-icon ${loading ? 'spinning' : ''}`}>🔄</span>
+                        {loading ? "Memuat..." : "Refresh"}
+                    </button>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => setShowAddForm(!showAddForm)}
+                    >
+                        <span className="btn-icon">➕</span>
+                        Tambah Rekening
+                    </button>
+                </div>
             </div>
 
-            {/* Search Bar */}
-            <div className="search-container">
-                <div className="search-box">
+            {/* Search Bar - Updated to match UserManagement style */}
+            <div className="search-section">
+                <div className="search-wrapper">
                     <span className="search-icon">🔍</span>
                     <input
                         type="text"
@@ -171,19 +206,31 @@ const AccountManagementPage: React.FC = () => {
                         className="search-input"
                     />
                 </div>
+                <div className="results-info">
+                    {!loading && (
+                        <span>
+                            Menampilkan {filteredAccounts.length} dari {accounts.length} rekening
+                        </span>
+                    )}
+                </div>
             </div>
 
-            {/* Content */}
-            <div className="content">
+            {/* Content Section - Wrap existing content */}
+            <div className="content-section">
                 {loading ? (
-                    <div className="loading">
-                        <div className="spinner"></div>
+                    <div className="loading-container">
+                        <div className="loading-spinner"></div>
                         <p>Memuat data rekening...</p>
                     </div>
                 ) : error ? (
-                    <div className="error-message">
-                        <span className="error-icon">⚠️</span>
-                        {error}
+                    <div className="error-container">
+                        <div className="error-content">
+                            <h3>Oops! Terjadi kesalahan</h3>
+                            <p>{error}</p>
+                            <button className="btn btn-primary" onClick={fetchAccounts}>
+                                Coba Lagi
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <>
@@ -239,7 +286,7 @@ const AccountManagementPage: React.FC = () => {
                                     <table className="accounts-table">
                                         <thead>
                                             <tr>
-                                                <th>ID</th>
+                                                <th>No</th>
                                                 <th>No Rekening</th>
                                                 <th>Jenis</th>
                                                 <th>Saldo</th>
@@ -251,7 +298,7 @@ const AccountManagementPage: React.FC = () => {
                                         <tbody>
                                             {filteredAccounts.map(acc => (
                                                 <tr key={acc.id}>
-                                                    <td>{acc.id}</td>
+                                                    <td>{accounts.findIndex(a => a.id === acc.id) + 1}</td>
                                                     <td className="account-number">
                                                         <strong>{acc.accountNumber}</strong>
                                                     </td>
@@ -264,23 +311,35 @@ const AccountManagementPage: React.FC = () => {
                                                         {formatBalance(acc.balance)}
                                                     </td>
                                                     <td>
-                                                        <span className={`status-badge ${acc.status.toLowerCase()}`}>
-                                                            {acc.status === 'ACTIVE' ? 'Aktif' : 'Nonaktif'}
-                                                        </span>
-                                                        <button
-                                                            className="btn btn-sm btn-toggle"
-                                                            style={{ marginLeft: 8 }}
-                                                            onClick={() => handleToggleStatus(acc.id, acc.status)}
-                                                            title="Ubah status rekening"
-                                                        >
-                                                            {acc.status === "ACTIVE" ? "Nonaktifkan" : "Aktifkan"}
-                                                        </button>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                            <span className={`status-badge ${acc.status.toLowerCase()}`}>
+                                                                {acc.status === 'ACTIVE' ? 'Aktif' : 'Nonaktif'}
+                                                            </span>
+                                                            <button
+                                                                className="btn btn-sm btn-toggle"
+                                                                onClick={() => handleToggleStatus(acc.id, acc.status)}
+                                                                title="Ubah status rekening"
+                                                            >
+                                                                {acc.status === "ACTIVE" ? "Nonaktifkan" : "Aktifkan"}
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                     <td>{acc.customerName || "-"}</td>
                                                     <td>
                                                         <div className="action-buttons">
-                                                            <button className="btn btn-sm btn-danger" onClick={() => handleDelete(acc.id)}>
-                                                                🗑️ Hapus
+                                                            <button
+                                                                className="action-btn detail-btn"
+                                                                title="Lihat Detail Rekening"
+                                                                onClick={() => handleShowDetail(acc)}
+                                                            >
+                                                                🔍
+                                                            </button>
+                                                            <button
+                                                                className="action-btn delete-btn"
+                                                                title="Hapus Rekening"
+                                                                onClick={() => handleDelete(acc.id)}
+                                                            >
+                                                                🗑️
                                                             </button>
                                                         </div>
                                                     </td>
@@ -294,6 +353,7 @@ const AccountManagementPage: React.FC = () => {
                     </>
                 )}
             </div>
+            {/* Modal */}
             {showAddForm && (
                 <AddAccountModal
                     open={showAddForm}
@@ -303,6 +363,15 @@ const AccountManagementPage: React.FC = () => {
                     newAccount={newAccount}
                     loading={false}
                     customers={customers}
+                />
+            )}
+
+            {/* Modal Detail Rekening */}
+            {showDetailModal && (
+                <AccountDetailModal
+                    open={showDetailModal}
+                    account={selectedAccount}
+                    onClose={() => setShowDetailModal(false)}
                 />
             )}
         </div>

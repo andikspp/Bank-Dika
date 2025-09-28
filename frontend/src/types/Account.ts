@@ -4,5 +4,6 @@ export type Account = {
     accountType: string;
     status: string;
     balance: number;
+    openedDate: string;
     customerName?: string;
 };

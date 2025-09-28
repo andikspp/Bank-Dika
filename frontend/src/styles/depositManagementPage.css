@@ -1,0 +1,400 @@
+.deposit-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.deposit-container {
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.6s ease-out;
+}
+
+/* Header Styles */
+.deposit-header {
+    text-align: center;
+    margin-bottom: 32px;
+    color: white;
+}
+
+.header-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    display: inline-block;
+    animation: bounce 2s infinite;
+}
+
+.header-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Form Container */
+.deposit-form-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    margin-bottom: 24px;
+}
+
+/* Form Styles */
+.deposit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.label-icon {
+    font-size: 16px;
+}
+
+.input-container {
+    position: relative;
+}
+
+.form-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 16px;
+    background: #fafbfc;
+    transition: all 0.3s ease;
+    outline: none;
+    font-weight: 500;
+}
+
+.form-input:focus {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.form-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.currency-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 20px;
+    font-weight: 600;
+    color: #6b7280;
+    z-index: 1;
+    font-size: 16px;
+}
+
+.currency-field {
+    padding-left: 50px;
+}
+
+.input-border {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+}
+
+.form-input:focus + .input-border {
+    width: 100%;
+}
+
+.amount-preview {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+}
+
+.preview-text {
+    font-weight: 600;
+    color: #059669;
+    font-size: 14px;
+}
+
+/* Submit Button */
+.submit-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 18px 24px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.submit-btn.loading {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+}
+
+.btn-icon {
+    font-size: 18px;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Info Cards */
+.info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px 16px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: transform 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-4px);
+}
+
+.info-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.info-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 4px 0;
+}
+
+.info-card p {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Confirmation Dialog Styles */
+.confirmation-detail {
+    text-align: left;
+    padding: 16px;
+}
+
+.confirmation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.confirmation-item:last-child {
+    border-bottom: none;
+}
+
+.confirmation-item .label {
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.confirmation-item .value {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.confirmation-item .value.amount {
+    color: #059669;
+    font-size: 18px;
+}
+
+.confirmation-note {
+    margin-top: 16px;
+    text-align: center;
+    color: #f59e0b;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .deposit-page {
+        padding: 16px;
+    }
+    
+    .deposit-form-container {
+        padding: 24px;
+        margin: 0 -8px 24px -8px;
+    }
+    
+    .header-title {
+        font-size: 28px;
+    }
+    
+    .header-icon {
+        font-size: 56px;
+    }
+    
+    .info-cards {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .deposit-form-container {
+        border-radius: 16px;
+        padding: 20px;
+    }
+    
+    .form-input {
+        padding: 14px 16px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .currency-symbol {
+        left: 16px;
+    }
+    
+    .currency-field {
+        padding-left: 44px;
+    }
+    
+    .submit-btn {
+        padding: 16px 20px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .deposit-form-container {
+        background: rgba(31, 41, 55, 0.95);
+        color: white;
+    }
+    
+    .form-label {
+        color: #e5e7eb;
+    }
+    
+    .form-input {
+        background: #374151;
+        border-color: #4b5563;
+        color: white;
+    }
+    
+    .form-input:focus {
+        background: #4b5563;
+    }
+    
+    .info-card {
+        background: rgba(31, 41, 55, 0.9);
+        color: white;
+    }
+    
+    .info-card h3 {
+        color: #e5e7eb;
+    }
+    
+    .info-card p {
+        color: #9ca3af;
+    }
+}

@@ -38,8 +38,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                 { id: "settings", label: "Pengaturan", icon: "⚙️", path: "/admin/settings" },
             ],
             TELLER: [
-                { id: "dashboard", label: "Dashboard", icon: "🏠", path: "/teller/dashboard" },
-                { id: "customers", label: "Data Customer", icon: "👤", path: "/teller/customers" },
+                { id: "dashboard", label: "Dashboard", icon: "🏠", path: "/dashboard" },
+                { id: "customers", label: "Data Nasabah", icon: "👤", path: "/teller/customers" },
                 { id: "deposit", label: "Setor Tunai", icon: "💰", path: "/teller/deposit" },
                 { id: "withdraw", label: "Tarik Tunai", icon: "💸", path: "/teller/withdraw" },
                 { id: "transfer", label: "Transfer", icon: "🔄", path: "/teller/transfer" },

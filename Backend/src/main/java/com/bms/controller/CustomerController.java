@@ -3,6 +3,7 @@ package com.bms.controller;
 import com.bms.model.Customer;
 import com.bms.service.CustomerService;
 import com.bms.dto.customerManagement.GetCustomerDTO;
+import com.bms.dto.customerManagement.GetCustomerDetailDTO;
 import com.bms.dto.customerManagement.CreateCustomerDTO;
 import com.bms.dto.customerManagement.UpdateCustomerDTO;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +40,23 @@ public class CustomerController {
             return customerService.getAllCustomers();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching customers", e);
+        }
+    }
+
+    /**
+     * Get customer by ID
+     * 
+     * @param req
+     * @return
+     */
+    @GetMapping("/{id}")
+    public GetCustomerDetailDTO getCustomerById(@PathVariable Long id) {
+        try {
+            return customerService.getCustomerById(id);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching customer", e);
         }
     }
 
@@ -88,6 +106,8 @@ public class CustomerController {
     @DeleteMapping("/{id}")
     public void deleteCustomer(@PathVariable Long id) {
         try {
+            // debug id dari frontend
+            System.out.println("CustomerController@Received delete customer request for ID: " + id);
             customerService.deleteCustomer(id);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);

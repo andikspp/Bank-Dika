@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import jakarta.transaction.Transactional;
 
 /**
  * Repository untuk entitas Account.
@@ -32,4 +33,13 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     List<Account> findByStatusIgnoreCase(String status);
 
     boolean existsByAccountNumber(String accountNumber);
+
+    /**
+     * delete 1 rekening atau lebih berdasarkan customer id
+     * 
+     * @param customerId
+     * @return void
+     */
+    @Transactional
+    void deleteByCustomer_Id(Long customerId);
 }

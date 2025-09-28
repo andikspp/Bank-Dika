@@ -4,6 +4,7 @@ import com.bms.dto.accountManagement.AccountResponseDTO;
 import com.bms.dto.accountManagement.CreateAccountDTO;
 import com.bms.dto.accountManagement.UpdateAccountDTO;
 import com.bms.dto.accountManagement.UpdateAccountStatusDTO;
+import com.bms.dto.accountManagement.CreateDepositAccountDTO;
 import com.bms.model.Account;
 import com.bms.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.math.BigDecimal;
 
 /**
  * Controller untuk mengelola rekening bank.
@@ -259,6 +261,31 @@ public class AccountController {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Gagal mengambil data rekening: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Deposit funds into an account by nomor rekening
+     * 
+     * @param accountNumber
+     * @param amount
+     * @return
+     */
+    @PostMapping("/deposit/{accountNumber}")
+    public ResponseEntity<?> depositToAccount(
+            @PathVariable String accountNumber,
+            @RequestBody CreateDepositAccountDTO depositDTO) {
+        try {
+            BigDecimal amount = depositDTO.getAmount();
+            AccountResponseDTO updatedAccount = accountService.depositToAccount(accountNumber, amount);
+            return ResponseEntity.ok(updatedAccount);
+        } catch (IllegalArgumentException e) {
+            // Jika rekening tidak ditemukan atau amount tidak valid
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Gagal melakukan deposit: " + e.getMessage()));
         }
     }
 }

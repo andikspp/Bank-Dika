@@ -276,6 +276,39 @@ public class AccountService {
     }
 
     /**
+     * deposit amount to account by account number
+     * 
+     * @param accountNumber
+     * @param amount
+     * @return
+     */
+    public AccountResponseDTO depositToAccount(String accountNumber, BigDecimal amount) {
+        try {
+            // debug data yang dikirim dari controller
+            System.out.println("AccountService@Data setor tunai diterima di service: accountNumber=" + accountNumber
+                    + ", amount=" + amount);
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Jumlah deposit harus lebih besar dari nol.");
+            }
+
+            Account account = accountRepository.findByAccountNumber(accountNumber)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Rekening tidak ditemukan dengan nomor rekening: " + accountNumber));
+
+            account.setBalance(account.getBalance().add(amount));
+
+            // debug data sebelum disimpan
+            System.out.println("AccountService@Data sebelum disimpan: accountNumber=" + account.getAccountNumber()
+                    + ", balance=" + account.getBalance());
+
+            Account updatedAccount = accountRepository.save(account);
+            return toDTO(updatedAccount);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    /**
      * Convert Account entity to AccountResponseDTO
      * 
      * @param account

@@ -5,11 +5,15 @@ import com.bms.model.User;
 import com.bms.dto.customerManagement.GetCustomerDTO;
 import com.bms.dto.customerManagement.CreateCustomerDTO;
 import com.bms.dto.customerManagement.UpdateCustomerDTO;
+import com.bms.dto.customerManagement.GetCustomerDetailDTO;
+import com.bms.dto.accountManagement.AccountResponseDTO;
 import com.bms.repository.CustomerRepository;
 import com.bms.repository.UserRepository;
+import com.bms.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service untuk manajemen customer.
@@ -26,6 +30,9 @@ public class CustomerService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     /**
      * Constructor untuk CustomerService
@@ -62,6 +69,47 @@ public class CustomerService {
                     .toList();
         } catch (Exception e) {
             throw new RuntimeException("Error fetching all customers: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get customer detail and rekening by ID customer
+     * 
+     * @param customerId
+     * @return
+     */
+    public GetCustomerDetailDTO getCustomerById(Long customerId) {
+        try {
+            Customer customer = customerRepository.findById(customerId)
+                    .orElseThrow(() -> new IllegalArgumentException("Customer with ID " + customerId + " not found"));
+
+            List<AccountResponseDTO> accountDTOs = customer.getAccounts().stream()
+                    .map(account -> new AccountResponseDTO(
+                            account.getId(),
+                            account.getAccountNumber(),
+                            account.getAccountType(),
+                            account.getBalance(),
+                            account.getStatus(),
+                            account.getCustomer() != null ? account.getCustomer().getFullName() : null,
+                            account.getOpenedAt(),
+                            account.getCustomer() != null ? account.getCustomer().getId() : null))
+                    .collect(Collectors.toList());
+
+            GetCustomerDetailDTO customerDetailDTO = new GetCustomerDetailDTO(
+                    customer.getId(),
+                    customer.getFullName(),
+                    customer.getEmail(),
+                    customer.getPhone(),
+                    customer.getAddress(),
+                    customer.getKtpNumber(),
+                    customer.getRegistrationDate(),
+                    accountDTOs);
+
+            return customerDetailDTO;
+        } catch (IllegalArgumentException e) {
+            throw e; // Rethrow to be handled in controller
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching customer by ID: " + e.getMessage());
         }
     }
 
@@ -137,9 +185,33 @@ public class CustomerService {
      */
     public void deleteCustomer(Long id) {
         try {
+            // debug data dari controller
+            System.out.println("CustomerService@Deleting customer with ID: " + id);
             Customer existingCustomer = customerRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Customer with ID " + id + " not found"));
 
+            // hapus rekening terkait jika ada
+            if (existingCustomer.getAccounts() != null && !existingCustomer.getAccounts().isEmpty()) {
+                accountRepository.deleteByCustomer_Id(id);
+                System.out.println("CustomerService@Cleared accounts for customer ID: " + id);
+            } else {
+                System.out.println("CustomerService@No accounts found for customer ID: " + id);
+            }
+
+            // hapus relasi di user jika ada
+            User user = userRepository.findByCustomer_Id(id);
+            if (user != null) {
+                user.setCustomer(null);
+                userRepository.save(user);
+                System.out.println("CustomerService@Cleared customer reference in user ID: " + user.getId());
+            } else {
+                System.out.println("CustomerService@No user found for customer ID: " + id);
+            }
+
+            // debug customer yang akan dihapus
+            System.out.println("CustomerService@Deleting customer: " + existingCustomer);
+
+            // hapus customer
             customerRepository.delete(existingCustomer);
         } catch (Exception e) {
             throw new RuntimeException("Error deleting customer: " + e.getMessage());
