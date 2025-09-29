@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                 { id: "dashboard", label: "Dashboard", icon: "🏠", path: "/dashboard" },
                 { id: "customers", label: "Data Nasabah", icon: "👤", path: "/teller/customers" },
                 { id: "deposit", label: "Setor Tunai", icon: "💰", path: "/teller/deposit" },
-                { id: "withdraw", label: "Tarik Tunai", icon: "💸", path: "/teller/withdraw" },
+                { id: "withdraw", label: "Tarik Tunai", icon: "💸", path: "/teller/withdrawal" },
                 { id: "transfer", label: "Transfer", icon: "🔄", path: "/teller/transfer" },
                 { id: "history", label: "Riwayat Transaksi", icon: "📝", path: "/teller/history" },
             ],

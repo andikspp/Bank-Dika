@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.Collections;
 
 /**
  * Service untuk manajemen rekening.
@@ -205,7 +206,7 @@ public class AccountService {
             List<AccountResponseDTO> result = account != null ? List.of(toDTO(account)) : Collections.emptyList();
             return result;
         } catch (Exception e) {
-            throw new RuntimeException("Error searching accounts by number: " + e.getMessage());
+            return Collections.emptyList();
         }
     }
 
@@ -284,9 +285,6 @@ public class AccountService {
      */
     public AccountResponseDTO depositToAccount(String accountNumber, BigDecimal amount) {
         try {
-            // debug data yang dikirim dari controller
-            System.out.println("AccountService@Data setor tunai diterima di service: accountNumber=" + accountNumber
-                    + ", amount=" + amount);
             if (amount.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new IllegalArgumentException("Jumlah deposit harus lebih besar dari nol.");
             }
@@ -297,10 +295,35 @@ public class AccountService {
 
             account.setBalance(account.getBalance().add(amount));
 
-            // debug data sebelum disimpan
-            System.out.println("AccountService@Data sebelum disimpan: accountNumber=" + account.getAccountNumber()
-                    + ", balance=" + account.getBalance());
+            Account updatedAccount = accountRepository.save(account);
+            return toDTO(updatedAccount);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
+    /**
+     * withdraw amount from account by account number
+     * 
+     * @param accountNumber
+     * @param amount
+     * @return
+     */
+    public AccountResponseDTO withdrawFromAccount(String accountNumber, BigDecimal amount) {
+        try {
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Jumlah penarikan harus lebih besar dari nol.");
+            }
+
+            Account account = accountRepository.findByAccountNumber(accountNumber)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Rekening tidak ditemukan dengan nomor rekening: " + accountNumber));
+
+            if (account.getBalance().compareTo(amount) < 0) {
+                throw new IllegalArgumentException("Saldo rekening tidak mencukupi untuk penarikan ini.");
+            }
+
+            account.setBalance(account.getBalance().subtract(amount));
             Account updatedAccount = accountRepository.save(account);
             return toDTO(updatedAccount);
         } catch (Exception e) {

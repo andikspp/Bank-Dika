@@ -11,6 +11,7 @@ import com.bms.model.Customer;
 import com.bms.repository.UserRepository;
 import com.bms.repository.RoleRepository;
 import com.bms.repository.CustomerRepository;
+import com.bms.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -42,6 +43,9 @@ public class UserService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -231,9 +235,26 @@ public class UserService {
      */
     public void deleteUser(Long id) {
         try {
-            if (!userRepository.existsById(id)) {
-                throw new IllegalArgumentException("User not found with ID: " + id);
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
+
+            // Hapus data customer dan rekening jika user punya customer
+            Customer customer = user.getCustomer();
+            if (customer != null) {
+                // Hapus semua rekening terkait customer
+                if (customer.getAccounts() != null) {
+                    customer.getAccounts().forEach(account -> {
+                        accountRepository.deleteById(account.getId());
+                    });
+                }
+                // Putuskan relasi user -> customer
+                user.setCustomer(null);
+                userRepository.save(user);
+                // Hapus customer
+                customerRepository.deleteById(customer.getId());
             }
+
+            // Hapus user
             userRepository.deleteById(id);
         } catch (Exception e) {
             throw new RuntimeException("Error deleting user: " + e.getMessage());

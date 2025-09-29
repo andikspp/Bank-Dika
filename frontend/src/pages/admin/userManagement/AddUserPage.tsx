@@ -46,12 +46,11 @@ const AddUserPage: React.FC = () => {
         }
 
         try {
-            // debug request form
-            console.log("Submitting form:", form);
             await axios.post("http://localhost:8080/api/users/add", form, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setSuccess(true);
+            setForm({ username: "", password: "", role: "" });
             setTimeout(() => navigate("/admin/users"), 1500);
         } catch (err: any) {
             console.error(err);

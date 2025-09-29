@@ -41,6 +41,7 @@ const AddUserModal: React.FC<{ open: boolean; onClose: () => void; onSuccess: ()
                 showConfirmButton: false,
             });
             onClose();
+            setForm({ username: "", password: "", role: "" });
         } catch (err: any) {
             // Jika backend mengirim string, gunakan err.response.data
             const msg = err.response?.data || "Gagal menambah user.";

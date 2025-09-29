@@ -1,6 +1,6 @@
-.deposit-page {
+.withdrawal-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
     padding: 20px;
     display: flex;
     align-items: center;
@@ -8,14 +8,14 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.deposit-container {
+.withdrawal-container {
     width: 100%;
-    max-width: 480px;
+    max-width: 520px;
     animation: slideUp 0.6s ease-out;
 }
 
 /* Header Styles */
-.deposit-header {
+.withdrawal-header {
     text-align: center;
     margin-bottom: 32px;
     color: white;
@@ -25,7 +25,7 @@
     font-size: 64px;
     margin-bottom: 16px;
     display: inline-block;
-    animation: bounce 2s infinite;
+    animation: shake 2s infinite;
 }
 
 .header-title {
@@ -43,7 +43,7 @@
 }
 
 /* Form Container */
-.deposit-form-container {
+.withdrawal-form-container {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-radius: 24px;
@@ -54,7 +54,7 @@
 }
 
 /* Form Styles */
-.deposit-form {
+.withdrawal-form {
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -95,9 +95,9 @@
 }
 
 .form-input:focus {
-    border-color: #667eea;
+    border-color: #dc2626;
     background: white;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
     transform: translateY(-2px);
 }
 
@@ -131,7 +131,7 @@
     left: 0;
     width: 0;
     height: 2px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #dc2626, #991b1b);
     transition: width 0.3s ease;
 }
 
@@ -139,296 +139,26 @@
     width: 100%;
 }
 
-.amount-preview {
+/* Account Info */
+.account-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-top: 8px;
-    padding: 12px;
+    padding: 8px 12px;
     background: linear-gradient(135deg, #ecfdf5, #d1fae5);
     border-radius: 8px;
-    /* warna kehijauan */
-    border: 1px solid #10b981;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.preview-text {
-    font-weight: 600;
-    color: #059669;
-    font-size: 14px;
-}
-
-/* Submit Button */
-.submit-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: white;
-    padding: 18px 24px;
-    border-radius: 16px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.submit-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
-}
-
-.submit-btn:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.submit-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.submit-btn.loading {
-    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
-}
-
-.btn-icon {
-    font-size: 18px;
-}
-
-.loading-spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-/* Info Cards */
-.info-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 16px;
-    margin-top: 24px;
-}
-
-.info-card {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 20px 16px;
-    text-align: center;
-    border: 1px solid rgba(255,255,255,0.2);
-    transition: transform 0.3s ease;
-}
-
-.info-card:hover {
-    transform: translateY(-4px);
+    border-left: 4px solid #10b981;
 }
 
 .info-icon {
-    font-size: 28px;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.info-card h3 {
     font-size: 14px;
-    font-weight: 600;
-    color: #374151;
-    margin: 0 0 4px 0;
 }
 
-.info-card p {
-    font-size: 12px;
-    color: #6b7280;
-    margin: 0;
-    line-height: 1.4;
-}
-
-/* Confirmation Dialog Styles */
-.confirmation-detail {
-    text-align: left;
-    padding: 16px;
-}
-
-.confirmation-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-.confirmation-item:last-child {
-    border-bottom: none;
-}
-
-.confirmation-item .label {
-    font-weight: 500;
-    color: #6b7280;
-}
-
-.confirmation-item .value {
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.confirmation-item .value.amount {
+.info-text {
+    font-size: 14px;
     color: #059669;
-    font-size: 18px;
-}
-
-.confirmation-note {
-    margin-top: 16px;
-    text-align: center;
-    color: #f59e0b;
-}
-
-/* Animations */
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-    }
-    40% {
-        transform: translateY(-10px);
-    }
-    60% {
-        transform: translateY(-5px);
-    }
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .deposit-page {
-        padding: 16px;
-    }
-    
-    .deposit-form-container {
-        padding: 24px;
-        margin: 0 -8px 24px -8px;
-    }
-    
-    .header-title {
-        font-size: 28px;
-    }
-    
-    .header-icon {
-        font-size: 56px;
-    }
-    
-    .info-cards {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .deposit-form-container {
-        border-radius: 16px;
-        padding: 20px;
-    }
-    
-    .form-input {
-        padding: 14px 16px;
-        font-size: 16px; /* Prevent zoom on iOS */
-    }
-    
-    .currency-symbol {
-        left: 16px;
-    }
-    
-    .currency-field {
-        padding-left: 44px;
-    }
-    
-    .submit-btn {
-        padding: 16px 20px;
-    }
-    
-    .amount-preview {
-        flex-direction: column;
-        gap: 8px;
-        align-items: flex-start;
-    }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .deposit-form-container {
-        background: rgba(31, 41, 55, 0.95);
-        color: white;
-    }
-    
-    .form-label {
-        color: #e5e7eb;
-    }
-    
-    .form-input {
-        background: #374151;
-        border-color: #4b5563;
-        color: white;
-    }
-    
-    .form-input:focus {
-        background: #4b5563;
-    }
-    
-    .info-card {
-        background: rgba(31, 41, 55, 0.9);
-        color: white;
-    }
-    
-    .info-card h3 {
-        color: #e5e7eb;
-    }
-    
-    .info-card p {
-        color: #9ca3af;
-    }
-}
-
-.transaction-summary {
-    background: #f8fafc;
-    border-radius: 8px;
-    padding: 16px;
-}
-
-.summary-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.summary-item:last-child {
-    border-bottom: none;
-}
-
-.summary-item .amount {
-    color: #10b981;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 /* Balance Display */
@@ -460,37 +190,374 @@
     color: #0c4a6e;
 }
 
-.final-balance {
+/* Amount Preview */
+.amount-preview {
+    margin-top: 8px;
+    padding: 12px;
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border-radius: 8px;
+    border-left: 4px solid #dc2626;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-text {
+    font-weight: 600;
+    color: #dc2626;
+    font-size: 16px;
+}
+
+.remaining-balance {
     font-size: 12px;
     color: #6b7280;
     font-weight: 500;
 }
 
-/* untuk di modal konfirmasi */
-.saldo-akhir {
+/* Submit Button */
+.withdrawal-btn {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    border: none;
+    color: white;
+    padding: 18px 24px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+}
+
+.withdrawal-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(220, 38, 38, 0.4);
+}
+
+.withdrawal-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.withdrawal-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.withdrawal-btn.loading {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+}
+
+/* Security Notice */
+.security-notice {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.notice-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.security-icon {
+    font-size: 24px;
+}
+
+.notice-header h3 {
+    margin: 0;
+    color: #374151;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.security-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.security-list li {
+    padding: 8px 0;
+    color: #4b5563;
+    font-size: 14px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.security-list li:last-child {
+    border-bottom: none;
+}
+
+/* Quick Amount Buttons */
+.quick-amounts {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.quick-amounts h4 {
+    margin: 0 0 16px 0;
+    color: #374151;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.quick-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.quick-btn {
+    background: transparent;
+    border: 2px solid #e5e7eb;
+    color: #6b7280;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick-btn:hover:not(:disabled) {
+    border-color: #dc2626;
+    color: #dc2626;
+    background: #fef2f2;
+    transform: translateY(-1px);
+}
+
+.quick-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Confirmation Dialog Styles */
+.confirmation-detail {
+    text-align: left;
+    padding: 16px;
+}
+
+.confirmation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.confirmation-item:last-child {
+    border-bottom: none;
+}
+
+.confirmation-item .label {
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.confirmation-item .value {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.confirmation-item .value.amount {
+    color: #dc2626;
+    font-size: 18px;
+}
+
+.confirmation-item .value.balance {
+    color: #059669;
+}
+
+.final-balance {
     background: #f8fafc;
     padding: 16px 12px !important;
     border-radius: 8px;
     margin-top: 8px;
 }
 
-.account-info {
+.confirmation-note {
+    margin-top: 16px;
+    text-align: center;
+    color: #f59e0b;
+}
+
+.balance-warning {
+    padding: 16px;
+}
+
+.balance-info {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    padding: 8px 0;
+}
+
+.balance-info .value.error {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+/* Success Dialog */
+.success-detail p {
+    margin-bottom: 16px;
+    color: #374151;
+}
+
+.transaction-summary {
+    background: #f8fafc;
     border-radius: 8px;
-    border-left: 4px solid #10b981;
+    padding: 16px;
 }
 
-.info-icon {
-    font-size: 14px;
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.info-text {
-    font-size: 14px;
-    color: #059669;
-    font-weight: 500;
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-item .amount {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 70%, 90% {
+        transform: translateX(-2px);
+    }
+    40%, 60% {
+        transform: translateX(2px);
+    }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .withdrawal-page {
+        padding: 16px;
+    }
+    
+    .withdrawal-form-container {
+        padding: 24px;
+        margin: 0 -8px 24px -8px;
+    }
+    
+    .header-title {
+        font-size: 28px;
+    }
+    
+    .header-icon {
+        font-size: 56px;
+    }
+    
+    .quick-buttons {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .withdrawal-form-container {
+        border-radius: 16px;
+        padding: 20px;
+    }
+    
+    .form-input {
+        padding: 14px 16px;
+        font-size: 16px;
+    }
+    
+    .currency-symbol {
+        left: 16px;
+    }
+    
+    .currency-field {
+        padding-left: 44px;
+    }
+    
+    .balance-amount {
+        font-size: 20px;
+    }
+    
+    .amount-preview {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .withdrawal-form-container,
+    .security-notice,
+    .quick-amounts {
+        background: rgba(31, 41, 55, 0.95);
+        color: white;
+    }
+    
+    .form-label,
+    .notice-header h3,
+    .quick-amounts h4 {
+        color: #e5e7eb;
+    }
+    
+    .form-input {
+        background: #374151;
+        border-color: #4b5563;
+        color: white;
+    }
+    
+    .form-input:focus {
+        background: #4b5563;
+    }
+    
+    .security-list li {
+        color: #9ca3af;
+        border-color: #4b5563;
+    }
 }

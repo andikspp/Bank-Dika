@@ -8,13 +8,6 @@ const TellerDashboard: React.FC = () => (
         </div>
         <div className="dashboard-grid">
             <DashboardCard
-                icon="🏦"
-                title="Transaksi"
-                description="Proses setoran, penarikan, dan transfer nasabah."
-                buttonLabel="Proses Transaksi"
-                buttonColor="#3182ce"
-            />
-            <DashboardCard
                 icon="👤"
                 title="Data Nasabah"
                 description="Lihat dan kelola informasi nasabah."
@@ -23,11 +16,28 @@ const TellerDashboard: React.FC = () => (
                 onClick={() => window.location.href = "/teller/customers"}
             />
             <DashboardCard
-                icon="📈"
-                title="Laporan Harian"
-                description="Buat laporan transaksi harian untuk atasan."
-                buttonLabel="Buat Laporan"
-                buttonColor="#d69e2e"
+                icon="💸"
+                title="Setoran Tunai"
+                description="Lakukan setoran tunai untuk nasabah."
+                buttonLabel="Setor Tunai"
+                buttonColor="#3182ce"
+                onClick={() => window.location.href = "/teller/deposit"}
+            />
+            <DashboardCard
+                icon="🏦"
+                title="Penarikan Tunai"
+                description="Lakukan penarikan tunai untuk nasabah."
+                buttonLabel="Tarik Tunai"
+                buttonColor="#e53e3e"
+                onClick={() => window.location.href = "/teller/withdrawal"}
+            />
+            <DashboardCard
+                icon="🔄"
+                title="Transfer Dana"
+                description="Lakukan transfer dana antar rekening."
+                buttonLabel="Transfer"
+                buttonColor="#805ad5"
+                onClick={() => window.location.href = "/teller/transfer"}
             />
         </div>
     </div>

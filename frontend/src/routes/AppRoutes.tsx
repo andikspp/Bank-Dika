@@ -17,6 +17,7 @@ const AccountManagementPage = React.lazy(() => import("../pages/admin/accountMan
 const CustomerManagementPage = React.lazy(() => import("../pages/teller/customerManagement/CustomerManagementPage"));
 const CustomerViewPage = React.lazy(() => import("../pages/teller/customerManagement/CustomerViewPage"));
 const DepositeManagementPage = React.lazy(() => import("../pages/teller/depositManagement/DepositManagementPage"));
+const WithdrawalManagementPage = React.lazy(() => import("../pages/teller/withdrawalManagement/WithdrawalManagementPage"));
 
 const AppRoutes: React.FC = () => {
     const initialUser = useInitialUser();
@@ -116,6 +117,16 @@ const AppRoutes: React.FC = () => {
                                 <ProtectedRoute requiredRole="TELLER">
                                     <MainLayout>
                                         <DepositeManagementPage />
+                                    </MainLayout>
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/teller/withdrawal"
+                            element={
+                                <ProtectedRoute requiredRole="TELLER">
+                                    <MainLayout>
+                                        <WithdrawalManagementPage />
                                     </MainLayout>
                                 </ProtectedRoute>
                             }

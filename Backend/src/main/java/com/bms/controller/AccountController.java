@@ -5,6 +5,7 @@ import com.bms.dto.accountManagement.CreateAccountDTO;
 import com.bms.dto.accountManagement.UpdateAccountDTO;
 import com.bms.dto.accountManagement.UpdateAccountStatusDTO;
 import com.bms.dto.accountManagement.CreateDepositAccountDTO;
+import com.bms.dto.accountManagement.CreateWithdrawalAccountDTO;
 import com.bms.model.Account;
 import com.bms.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.math.BigDecimal;
+import java.util.Collections;
 
 /**
  * Controller untuk mengelola rekening bank.
@@ -188,8 +190,8 @@ public class AccountController {
             List<AccountResponseDTO> accounts = accountService.searchAccountsByNumber(accountNumber);
             return ResponseEntity.ok(accounts);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Gagal mencari rekening: " + e.getMessage());
+            // Jika error, return array kosong
+            return ResponseEntity.ok(Collections.emptyList());
         }
     }
 
@@ -286,6 +288,31 @@ public class AccountController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Gagal melakukan deposit: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Withdraw funds from an account by nomor rekening
+     * 
+     * @param accountNumber
+     * @param amount
+     * @return
+     */
+    @PostMapping("/withdraw/{accountNumber}")
+    public ResponseEntity<?> withdrawFromAccount(
+            @PathVariable String accountNumber,
+            @RequestBody CreateWithdrawalAccountDTO withdrawalDTO) {
+        try {
+            BigDecimal amount = new BigDecimal(withdrawalDTO.getAmount());
+            AccountResponseDTO updatedAccount = accountService.withdrawFromAccount(accountNumber, amount);
+            return ResponseEntity.ok(updatedAccount);
+        } catch (IllegalArgumentException e) {
+            // Jika rekening tidak ditemukan atau amount tidak valid
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Gagal melakukan penarikan: " + e.getMessage()));
         }
     }
 }

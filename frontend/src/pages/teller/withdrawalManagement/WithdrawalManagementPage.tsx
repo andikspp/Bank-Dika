@@ -1,42 +1,41 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "../../../styles/depositManagementPage.css";
+import "../../../styles/withdrawalManagementPage.css";
 import Swal from "sweetalert2";
 
-const DepositManagementPage: React.FC = () => {
+const WithdrawalManagementPage: React.FC = () => {
     const [accountNumber, setAccountNumber] = useState("");
     const [amount, setAmount] = useState<number>(0);
     const [accountName, setAccountName] = useState("");
+    const [currentBalance, setCurrentBalance] = useState<number>(0);
     const [statusAccount, setStatusAccount] = useState("");
-    const [currentBalance, setCurrentBalance] = useState(0);
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        let accountOwner = "";
-        let status = "";
-        let balance = 0;
 
-        // Validasi input
         if (amount <= 0) {
             Swal.fire({
                 title: 'Peringatan!',
-                text: 'Jumlah setoran harus lebih dari Rp 0',
+                text: 'Jumlah penarikan harus lebih dari Rp 0',
                 icon: 'warning',
                 confirmButtonColor: '#f59e0b'
             });
             return;
         }
 
-        // Cari nama pemilik rekening berdasarkan nomor rekening
+        let accountOwner = "";
+        let balance = 0;
+        let status = "";
+
+        // Cari informasi rekening berdasarkan nomor rekening
         try {
             const token = localStorage.getItem("token");
-            console.log("Searching for account:", accountNumber);
             const response = await axios.get(`http://localhost:8080/api/accounts/search`, {
                 params: { accountNumber },
                 headers: { Authorization: `Bearer ${token}` }
             });
-            console.log("Search account response:", response.data);
+
             if (response.data.length === 0) {
                 Swal.fire({
                     title: '❌ Gagal!',
@@ -48,8 +47,8 @@ const DepositManagementPage: React.FC = () => {
             }
 
             accountOwner = response.data[0].customerName;
-            status = response.data[0].status;
             balance = response.data[0].balance;
+            status = response.data[0].status;
 
             // lakukan konversi nama status dari "ACTIVE" menjadi "Aktif", "INACTIVE" menjadi "Tidak Aktif"
             if (status === "ACTIVE") {
@@ -58,9 +57,32 @@ const DepositManagementPage: React.FC = () => {
                 status = "Tidak Aktif";
             }
 
-            setStatusAccount(status);
             setAccountName(accountOwner);
             setCurrentBalance(balance);
+            setStatusAccount(status);
+
+            // Cek apakah saldo mencukupi
+            if (amount > balance) {
+                Swal.fire({
+                    title: '❌ Saldo Tidak Mencukupi!',
+                    html: `
+                        <div class="balance-warning">
+                            <div class="balance-info">
+                                <span class="label">Saldo Tersedia:</span>
+                                <span class="value">${balance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
+                            </div>
+                            <div class="balance-info">
+                                <span class="label">Jumlah Penarikan:</span>
+                                <span class="value error">${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'error',
+                    confirmButtonColor: '#ef4444'
+                });
+                return;
+            }
+
         } catch (err) {
             Swal.fire({
                 title: '❌ Gagal!',
@@ -71,9 +93,9 @@ const DepositManagementPage: React.FC = () => {
             return;
         }
 
-        // Konfirmasi sebelum melakukan transaksi
+        // Konfirmasi sebelum melakukan penarikan
         const confirmation = await Swal.fire({
-            title: '💰 Konfirmasi Setor Tunai',
+            title: '💸 Konfirmasi Penarikan Tunai',
             html: `
                 <div class="confirmation-detail">
                     <div class="confirmation-item">
@@ -89,30 +111,30 @@ const DepositManagementPage: React.FC = () => {
                         <span class="value">${status}</span>
                     </div>
                     <div class="confirmation-item">
-                        <span class="label">Jumlah Setoran:</span>
-                        <span class="value amount">${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
-                    </div>
-                     <div class="confirmation-item">
                         <span class="label">Saldo Saat Ini:</span>
                         <span class="value balance">${balance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
                     </div>
-                    <div class="confirmation-item saldo-akhir">
-                        <span class="label">Saldo Setelah Setoran:</span>
-                        <span class="value new-balance">${(balance + amount).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
+                    <div class="confirmation-item">
+                        <span class="label">Jumlah Penarikan:</span>
+                        <span class="value amount">${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
+                    </div>
+                    <div class="confirmation-item final-balance">
+                        <span class="label">Saldo Setelah Penarikan:</span>
+                        <span class="value">${(balance - amount).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
                     </div>
                     <div class="confirmation-note">
-                        <small>⚠️ Pastikan data sudah benar sebelum melanjutkan</small>
+                        <small>⚠️ Pastikan nasabah membawa identitas yang valid</small>
                     </div>
                 </div>
             `,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonText: '✅ Ya, Setor Sekarang',
+            confirmButtonText: '✅ Ya, Tarik Sekarang',
             cancelButtonText: '❌ Batal',
-            confirmButtonColor: '#10b981',
+            confirmButtonColor: '#dc2626',
             cancelButtonColor: '#6b7280',
             customClass: {
-                popup: 'deposit-confirmation-popup'
+                popup: 'withdrawal-confirmation-popup'
             }
         });
 
@@ -120,13 +142,12 @@ const DepositManagementPage: React.FC = () => {
 
         setLoading(true);
 
-        // Lakukan transaksi setor tunai
         try {
             // Cek status rekening, hanya boleh setor jika status "Aktif"
             if (status !== "Aktif") {
                 Swal.fire({
                     title: '❌ Gagal!',
-                    text: 'Rekening tidak aktif. Setoran hanya dapat dilakukan pada rekening yang aktif.',
+                    text: 'Rekening tidak aktif. Tarik tunai hanya dapat dilakukan pada rekening yang aktif.',
                     icon: 'error',
                     confirmButtonColor: '#ef4444'
                 });
@@ -134,8 +155,7 @@ const DepositManagementPage: React.FC = () => {
             }
 
             const token = localStorage.getItem("token");
-
-            await axios.post(`http://localhost:8080/api/accounts/deposit/${accountNumber}`, {
+            await axios.post(`http://localhost:8080/api/accounts/withdraw/${accountNumber}`, {
                 amount
             }, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -146,22 +166,22 @@ const DepositManagementPage: React.FC = () => {
                 title: '🎉 Berhasil!',
                 html: `
                     <div class="success-detail">
-                        <p>Setoran tunai telah berhasil diproses</p>
+                        <p>Penarikan tunai telah berhasil diproses</p>
                         <div class="transaction-summary">
                             <div class="summary-item">
-                                <span>Jumlah Setoran:</span>
+                                <span>Jumlah Ditarik:</span>
                                 <span class="amount">${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
                             </div>
                             <div class="summary-item">
-                                <span>Saldo Saat ini:</span>
-                                <span>${(balance + amount).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
+                                <span>Saldo Tersisa:</span>
+                                <span>${(balance - amount).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
                             </div>
                         </div>
                     </div>
                 `,
                 icon: 'success',
                 confirmButtonColor: '#10b981',
-                timer: 3000,
+                timer: 4000,
                 timerProgressBar: true
             });
 
@@ -169,13 +189,12 @@ const DepositManagementPage: React.FC = () => {
             setAccountNumber("");
             setAmount(0);
             setAccountName("");
-            setStatusAccount("");
             setCurrentBalance(0);
 
         } catch (err: any) {
             Swal.fire({
                 title: '❌ Gagal!',
-                text: err.response?.data?.message || 'Terjadi kesalahan saat memproses setoran',
+                text: err.response?.data?.message || 'Terjadi kesalahan saat memproses penarikan',
                 icon: 'error',
                 confirmButtonColor: '#ef4444'
             });
@@ -185,18 +204,18 @@ const DepositManagementPage: React.FC = () => {
     };
 
     return (
-        <div className="deposit-page">
-            <div className="deposit-container">
+        <div className="withdrawal-page">
+            <div className="withdrawal-container">
                 {/* Header Section */}
-                <div className="deposit-header">
-                    <div className="header-icon">💰</div>
-                    <h1 className="header-title">Setor Tunai</h1>
-                    <p className="header-subtitle">Lakukan penyetoran tunai dengan mudah dan aman</p>
+                <div className="withdrawal-header">
+                    <div className="header-icon">💸</div>
+                    <h1 className="header-title">Penarikan Tunai</h1>
+                    <p className="header-subtitle">Proses penarikan tunai dengan verifikasi keamanan</p>
                 </div>
 
                 {/* Form Section */}
-                <div className="deposit-form-container">
-                    <form className="deposit-form" onSubmit={handleSubmit}>
+                <div className="withdrawal-form-container">
+                    <form className="withdrawal-form" onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="accountNumber" className="form-label">
                                 <span className="label-icon">🏦</span>
@@ -237,7 +256,7 @@ const DepositManagementPage: React.FC = () => {
                         <div className="form-group">
                             <label htmlFor="amount" className="form-label">
                                 <span className="label-icon">💵</span>
-                                Jumlah Setoran
+                                Jumlah Penarikan
                             </label>
                             <div className="input-container">
                                 <div className="currency-input">
@@ -250,6 +269,7 @@ const DepositManagementPage: React.FC = () => {
                                         onChange={e => setAmount(Number(e.target.value))}
                                         required
                                         min={1}
+                                        max={currentBalance || undefined}
                                         placeholder="0"
                                         disabled={loading}
                                     />
@@ -259,11 +279,11 @@ const DepositManagementPage: React.FC = () => {
                             {amount > 0 && (
                                 <div className="amount-preview">
                                     <span className="preview-text">
-                                        💰 {amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
+                                        💸 {amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
                                     </span>
                                     {currentBalance > 0 && (
-                                        <span className="final-balance">
-                                            Saldo Akhir: {(currentBalance + amount).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
+                                        <span className="remaining-balance">
+                                            Sisa: {(currentBalance - amount).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
                                         </span>
                                     )}
                                 </div>
@@ -272,7 +292,7 @@ const DepositManagementPage: React.FC = () => {
 
                         <button
                             type="submit"
-                            className={`submit-btn ${loading ? 'loading' : ''}`}
+                            className={`submit-btn withdrawal-btn ${loading ? 'loading' : ''}`}
                             disabled={loading}
                         >
                             {loading ? (
@@ -283,7 +303,7 @@ const DepositManagementPage: React.FC = () => {
                             ) : (
                                 <>
                                     <span className="btn-icon">💸</span>
-                                    <span>Setor Sekarang</span>
+                                    <span>Tarik Tunai</span>
                                 </>
                             )}
                         </button>
@@ -303,9 +323,27 @@ const DepositManagementPage: React.FC = () => {
                         <li>✓ Hitung uang di depan nasabah</li>
                     </ul>
                 </div>
+
+                {/* Quick Amount Buttons */}
+                {/* <div className="quick-amounts">
+                    <h4>Nominal Cepat</h4>
+                    <div className="quick-buttons">
+                        {[100000, 200000, 500000, 1000000].map(quickAmount => (
+                            <button
+                                key={quickAmount}
+                                type="button"
+                                className="quick-btn"
+                                onClick={() => setAmount(quickAmount)}
+                                disabled={loading || quickAmount > currentBalance}
+                            >
+                                {quickAmount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
+                            </button>
+                        ))}
+                    </div>
+                </div> */}
             </div>
         </div>
     );
 };
 
-export default DepositManagementPage;
+export default WithdrawalManagementPage;
