@@ -6,8 +6,11 @@ import com.bms.dto.accountManagement.UpdateAccountDTO;
 import com.bms.dto.accountManagement.UpdateAccountStatusDTO;
 import com.bms.dto.accountManagement.CreateDepositAccountDTO;
 import com.bms.dto.accountManagement.CreateWithdrawalAccountDTO;
+import com.bms.dto.accountManagement.CreateTransferDTO;
 import com.bms.model.Account;
+import com.bms.model.Transaction;
 import com.bms.service.AccountService;
+import com.bms.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,9 @@ public class AccountController {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private TransactionService transactionService;
 
     /**
      * Get all accounts
@@ -280,7 +286,23 @@ public class AccountController {
         try {
             BigDecimal amount = depositDTO.getAmount();
             AccountResponseDTO updatedAccount = accountService.depositToAccount(accountNumber, amount);
-            return ResponseEntity.ok(updatedAccount);
+
+            // --- Catat transaksi DEPOSIT ---
+            Transaction depositTransaction = new Transaction();
+            depositTransaction.setTransactionType("DEPOSIT");
+            depositTransaction.setAmount(amount);
+            depositTransaction.setDescription("Setoran tunai");
+
+            String referenceNumber = "DEP-" + System.currentTimeMillis();
+            depositTransaction.setReferenceNumber(referenceNumber);
+            Account account = accountService.getAccountEntityByAccountNumber(accountNumber);
+            depositTransaction.setAccount(account);
+            transactionService.recordTransaction(depositTransaction);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Deposit berhasil",
+                    "updatedAccount", updatedAccount,
+                    "depositTransaction", depositTransaction));
         } catch (IllegalArgumentException e) {
             // Jika rekening tidak ditemukan atau amount tidak valid
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -305,7 +327,22 @@ public class AccountController {
         try {
             BigDecimal amount = new BigDecimal(withdrawalDTO.getAmount());
             AccountResponseDTO updatedAccount = accountService.withdrawFromAccount(accountNumber, amount);
-            return ResponseEntity.ok(updatedAccount);
+
+            // --- Catat transaksi WITHDRAWAL ---
+            Transaction withdrawalTransaction = new Transaction();
+            withdrawalTransaction.setTransactionType("WITHDRAWAL");
+            withdrawalTransaction.setAmount(amount);
+            withdrawalTransaction.setDescription("Penarikan tunai");
+            String referenceNumber = "WD-" + System.currentTimeMillis();
+            withdrawalTransaction.setReferenceNumber(referenceNumber);
+            Account account = accountService.getAccountEntityByAccountNumber(accountNumber);
+            withdrawalTransaction.setAccount(account);
+            transactionService.recordTransaction(withdrawalTransaction);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Penarikan berhasil",
+                    "updatedAccount", updatedAccount,
+                    "withdrawalTransaction", withdrawalTransaction));
         } catch (IllegalArgumentException e) {
             // Jika rekening tidak ditemukan atau amount tidak valid
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -313,6 +350,56 @@ public class AccountController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Gagal melakukan penarikan: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Transfer funds between two accounts by nomor rekening
+     * 
+     * @param transferDTO
+     * @return
+     */
+    @PostMapping("/transfer")
+    public ResponseEntity<?> transferBetweenAccounts(@Valid @RequestBody CreateTransferDTO transferDTO) {
+        try {
+            AccountResponseDTO fromAccount = accountService.transferBetweenAccounts(
+                    transferDTO.getFromAccountNumber(),
+                    transferDTO.getToAccountNumber(),
+                    new BigDecimal(transferDTO.getAmount()));
+
+            // --- Catat transaksi untuk pengirim (DEBIT) ---
+            Transaction senderTransaction = new Transaction();
+            senderTransaction.setTransactionType("TRANSFER_DEBIT");
+            senderTransaction.setAmount(new BigDecimal(transferDTO.getAmount()));
+            senderTransaction.setDescription(transferDTO.getDescription());
+            String referenceNumber = "TRF-" + System.currentTimeMillis();
+            senderTransaction.setReferenceNumber(referenceNumber);
+            Account senderAccount = accountService.getAccountEntityByAccountNumber(transferDTO.getFromAccountNumber());
+            senderTransaction.setAccount(senderAccount);
+            transactionService.recordTransaction(senderTransaction);
+
+            // --- Catat transaksi untuk penerima (CREDIT) ---
+            Transaction receiverTransaction = new Transaction();
+            receiverTransaction.setTransactionType("TRANSFER_CREDIT");
+            receiverTransaction.setAmount(new BigDecimal(transferDTO.getAmount()));
+            receiverTransaction.setDescription(transferDTO.getDescription());
+            receiverTransaction.setReferenceNumber(referenceNumber); // gunakan referensi yang sama
+            Account receiverAccount = accountService.getAccountEntityByAccountNumber(transferDTO.getToAccountNumber());
+            receiverTransaction.setAccount(receiverAccount);
+            transactionService.recordTransaction(receiverTransaction);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Transfer berhasil",
+                    "fromAccount", fromAccount,
+                    "senderTransaction", senderTransaction,
+                    "receiverTransaction", receiverTransaction));
+        } catch (IllegalArgumentException e) {
+            // Jika rekening tidak ditemukan atau amount tidak valid
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Gagal melakukan transfer: " + e.getMessage()));
         }
     }
 }

@@ -18,6 +18,8 @@ const CustomerManagementPage = React.lazy(() => import("../pages/teller/customer
 const CustomerViewPage = React.lazy(() => import("../pages/teller/customerManagement/CustomerViewPage"));
 const DepositeManagementPage = React.lazy(() => import("../pages/teller/depositManagement/DepositManagementPage"));
 const WithdrawalManagementPage = React.lazy(() => import("../pages/teller/withdrawalManagement/WithdrawalManagementPage"));
+const TransferManagementPage = React.lazy(() => import("../pages/teller/transferManagement/TransferManagementPage"));
+const HistoryManagementPage = React.lazy(() => import("../pages/teller/historyManagement/HistoryManagementPage"));
 
 const AppRoutes: React.FC = () => {
     const initialUser = useInitialUser();
@@ -127,6 +129,26 @@ const AppRoutes: React.FC = () => {
                                 <ProtectedRoute requiredRole="TELLER">
                                     <MainLayout>
                                         <WithdrawalManagementPage />
+                                    </MainLayout>
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/teller/transfer"
+                            element={
+                                <ProtectedRoute requiredRole="TELLER">
+                                    <MainLayout>
+                                        <TransferManagementPage />
+                                    </MainLayout>
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/teller/history"
+                            element={
+                                <ProtectedRoute requiredRole="TELLER">
+                                    <MainLayout>
+                                        <HistoryManagementPage />
                                     </MainLayout>
                                 </ProtectedRoute>
                             }

@@ -6,6 +6,7 @@ import com.bms.dto.accountManagement.UpdateAccountDTO;
 import com.bms.dto.accountManagement.UpdateAccountStatusDTO;
 import com.bms.model.Account;
 import com.bms.model.Customer;
+import com.bms.model.Transaction;
 import com.bms.repository.AccountRepository;
 import com.bms.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -329,6 +330,59 @@ public class AccountService {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    /**
+     * Transfer amount from one account to another
+     * 
+     * @param fromAccountNumber
+     * @param toAccountNumber
+     * @param amount
+     * @return
+     */
+    public AccountResponseDTO transferBetweenAccounts(String fromAccountNumber, String toAccountNumber,
+            BigDecimal amount) {
+        try {
+            if (fromAccountNumber.equals(toAccountNumber)) {
+                throw new IllegalArgumentException("Rekening pengirim dan penerima tidak boleh sama.");
+            }
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Jumlah transfer harus lebih besar dari nol.");
+            }
+
+            Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Rekening pengirim tidak ditemukan dengan nomor rekening: " + fromAccountNumber));
+
+            Account toAccount = accountRepository.findByAccountNumber(toAccountNumber)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Rekening penerima tidak ditemukan dengan nomor rekening: " + toAccountNumber));
+
+            if (fromAccount.getBalance().compareTo(amount) < 0) {
+                throw new IllegalArgumentException("Saldo rekening pengirim tidak mencukupi untuk transfer ini.");
+            }
+
+            fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
+            toAccount.setBalance(toAccount.getBalance().add(amount));
+
+            accountRepository.save(fromAccount);
+            accountRepository.save(toAccount);
+
+            return toDTO(fromAccount);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    /**
+     * Get Account entity by account number
+     * 
+     * @param accountNumber
+     * @return
+     */
+    public Account getAccountEntityByAccountNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Rekening tidak ditemukan"));
     }
 
     /**
