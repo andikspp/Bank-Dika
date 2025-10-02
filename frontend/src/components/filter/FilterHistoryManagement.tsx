@@ -41,7 +41,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ filters, onFilterChange, 
                     className="filter-select"
                 >
                     <option value="all">Semua Status</option>
-                    <option value="COMPLETED">Berhasil</option>
+                    <option value="SUCCESS">Berhasil</option>
                     <option value="PENDING">Pending</option>
                     <option value="FAILED">Gagal</option>
                 </select>

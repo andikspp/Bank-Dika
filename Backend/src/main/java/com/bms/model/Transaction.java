@@ -29,6 +29,9 @@ public class Transaction {
     @Column(length = 50)
     private String referenceNumber;
 
+    @Column(length = 20, nullable = false)
+    private String status;
+
     // getter & setter
     public Long getId() {
         return id;
@@ -80,5 +83,13 @@ public class Transaction {
 
     public void setReferenceNumber(String referenceNumber) {
         this.referenceNumber = referenceNumber;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

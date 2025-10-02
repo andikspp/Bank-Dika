@@ -122,7 +122,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ transaction, isOpen
                         <div className="summary-status">
                             {getStatusIcon(transaction.status)}
                             <span className={`status-badge ${getStatusColor(transaction.status)}`}>
-                                {transaction.status === 'COMPLETED' ? 'Berhasil' :
+                                {transaction.status === 'SUCCESS' ? 'Berhasil' :
                                     transaction.status === 'PENDING' ? 'Pending' : 'Gagal'}
                             </span>
                         </div>

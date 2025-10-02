@@ -13,7 +13,6 @@ public class TransactionResponseDTO {
     private String referenceNumber;
     private LocalDateTime timestamp;
     private String status;
-    private BigDecimal balance;
 
     public TransactionResponseDTO() {
     }
@@ -90,13 +89,5 @@ public class TransactionResponseDTO {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
     }
 }

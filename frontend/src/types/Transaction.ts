@@ -7,7 +7,7 @@ export interface Transaction {
     description: string;
     referenceNumber: string;
     timestamp: string;
-    status: 'COMPLETED' | 'PENDING' | 'FAILED';
+    status: 'SUCCESS' | 'PENDING' | 'FAILED';
     balance?: number;
 }
 

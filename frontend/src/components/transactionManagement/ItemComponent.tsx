@@ -37,7 +37,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
 
     const getStatusIcon = (status: string) => {
         switch (status) {
-            case 'COMPLETED':
+            case 'SUCCESS':
                 return <CheckCircle className="w-4 h-4 text-green-500" />;
             case 'PENDING':
                 return <Clock className="w-4 h-4 text-yellow-500" />;
@@ -50,7 +50,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'COMPLETED':
+            case 'SUCCESS':
                 return 'bg-green-100 text-green-800';
             case 'PENDING':
                 return 'bg-yellow-100 text-yellow-800';
@@ -147,7 +147,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
                 <div className="transaction-status">
                     {getStatusIcon(transaction.status)}
                     <span className={`status-badge ${getStatusColor(transaction.status)}`}>
-                        {transaction.status === 'COMPLETED' ? 'Berhasil' :
+                        {transaction.status === 'SUCCESS' ? 'Berhasil' :
                             transaction.status === 'PENDING' ? 'Pending' : 'Gagal'}
                     </span>
                 </div>

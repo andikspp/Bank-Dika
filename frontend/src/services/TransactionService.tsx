@@ -17,7 +17,7 @@ class TransactionService {
             const response = await axios.get(`${API_BASE_URL}/transactions`, {
                 headers: this.getAuthHeaders()
             });
-            return response.data;
+            return Array.isArray(response.data) ? response.data : [];
         } catch (error: any) {
             throw new Error(error.response?.data?.message || 'Failed to fetch transactions');
         }

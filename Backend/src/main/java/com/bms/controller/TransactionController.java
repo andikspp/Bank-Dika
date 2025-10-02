@@ -2,6 +2,7 @@ package com.bms.controller;
 
 import com.bms.model.Transaction;
 import com.bms.service.TransactionService;
+import com.bms.dto.transactionManagement.TransactionResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +17,14 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    // Get all transactions
+    /**
+     * Get all transactions
+     * 
+     * @return
+     */
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAllTransactions() {
-        List<Transaction> transactions = transactionService.getAllTransactions();
+    public ResponseEntity<List<TransactionResponseDTO>> getAllTransactions() {
+        List<TransactionResponseDTO> transactions = transactionService.getAllTransactions();
         return ResponseEntity.ok(transactions);
     }
 

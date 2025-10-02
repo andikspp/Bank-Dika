@@ -292,6 +292,7 @@ public class AccountController {
             depositTransaction.setTransactionType("DEPOSIT");
             depositTransaction.setAmount(amount);
             depositTransaction.setDescription("Setoran tunai");
+            depositTransaction.setStatus("SUCCESS");
 
             String referenceNumber = "DEP-" + System.currentTimeMillis();
             depositTransaction.setReferenceNumber(referenceNumber);
@@ -333,6 +334,7 @@ public class AccountController {
             withdrawalTransaction.setTransactionType("WITHDRAWAL");
             withdrawalTransaction.setAmount(amount);
             withdrawalTransaction.setDescription("Penarikan tunai");
+            withdrawalTransaction.setStatus("SUCCESS");
             String referenceNumber = "WD-" + System.currentTimeMillis();
             withdrawalTransaction.setReferenceNumber(referenceNumber);
             Account account = accountService.getAccountEntityByAccountNumber(accountNumber);
@@ -372,6 +374,7 @@ public class AccountController {
             senderTransaction.setTransactionType("TRANSFER_DEBIT");
             senderTransaction.setAmount(new BigDecimal(transferDTO.getAmount()));
             senderTransaction.setDescription(transferDTO.getDescription());
+            senderTransaction.setStatus("SUCCESS");
             String referenceNumber = "TRF-" + System.currentTimeMillis();
             senderTransaction.setReferenceNumber(referenceNumber);
             Account senderAccount = accountService.getAccountEntityByAccountNumber(transferDTO.getFromAccountNumber());
@@ -383,6 +386,7 @@ public class AccountController {
             receiverTransaction.setTransactionType("TRANSFER_CREDIT");
             receiverTransaction.setAmount(new BigDecimal(transferDTO.getAmount()));
             receiverTransaction.setDescription(transferDTO.getDescription());
+            receiverTransaction.setStatus("SUCCESS");
             receiverTransaction.setReferenceNumber(referenceNumber); // gunakan referensi yang sama
             Account receiverAccount = accountService.getAccountEntityByAccountNumber(transferDTO.getToAccountNumber());
             receiverTransaction.setAccount(receiverAccount);

@@ -4,6 +4,7 @@ import com.bms.model.Transaction;
 import com.bms.model.Account;
 import com.bms.repository.TransactionRepository;
 import com.bms.repository.AccountRepository;
+import com.bms.dto.transactionManagement.TransactionResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,9 +38,14 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    // Ambil semua transaksi
-    public List<Transaction> getAllTransactions() {
-        return transactionRepository.findAll();
+    /**
+     * Ambil semua transaksi
+     * 
+     * @return
+     */
+    public List<TransactionResponseDTO> getAllTransactions() {
+        List<Transaction> transactions = transactionRepository.findAll();
+        return transactions.stream().map(this::toDTO).toList();
     }
 
     // Ambil transaksi berdasarkan ID
@@ -65,5 +71,25 @@ public class TransactionService {
     // Ambil transaksi berdasarkan tipe transaksi
     public List<Transaction> getTransactionsByType(String transactionType) {
         return transactionRepository.findByTransactionType(transactionType);
+    }
+
+    /**
+     * Konversi entitas Transaction ke DTO
+     * 
+     * @param transaction
+     * @return
+     */
+    private TransactionResponseDTO toDTO(Transaction transaction) {
+        TransactionResponseDTO dto = new TransactionResponseDTO();
+        dto.setId(transaction.getId());
+        dto.setAccountNumber(transaction.getAccount().getAccountNumber());
+        dto.setCustomerName(transaction.getAccount().getCustomer().getFullName());
+        dto.setTransactionType(transaction.getTransactionType());
+        dto.setAmount(transaction.getAmount());
+        dto.setReferenceNumber(transaction.getReferenceNumber());
+        dto.setDescription(transaction.getDescription());
+        dto.setTimestamp(transaction.getTimestamp());
+        dto.setStatus(transaction.getStatus());
+        return dto;
     }
 }
