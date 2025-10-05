@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCustomerDetail } from "../../../hooks/useCustomerDetail";
 import { useAccountManagement } from "../../../hooks/useAccountManagement";
 
-import CustomerDetailHeader from "../../../components/customerManagement/CustomerDetailHeader";
+import CustomerDetailHeader from "../../../components/header/CustomerDetailHeader";
 import CustomerDetailCard from "../../../components/card/CustomerDetailCard";
 import AddAccountModal from "../../../components/accountManagement/modal/AddAccountModal";
 import AccountDetailModal from "../../../components/customerManagement/modal/DetailAccountModal";

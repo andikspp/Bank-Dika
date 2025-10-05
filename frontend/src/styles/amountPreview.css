@@ -1,0 +1,98 @@
+.amount-preview {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 8px;
+    border-left: 4px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.amount-preview.deposit {
+    border-left-color: #10b981;
+    background: #ecfdf5;
+}
+
+.amount-preview.withdrawal {
+    border-left-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.preview-amount {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.transaction-icon {
+    font-size: 1.25rem;
+}
+
+.preview-text {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.balance-result {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.balance-label {
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.balance-value {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Balance state colors */
+.balance-result.positive .balance-value {
+    color: #059669;
+}
+
+.balance-result.normal .balance-value {
+    color: #1f2937;
+}
+
+.balance-result.warning .balance-value {
+    color: #d97706;
+}
+
+.balance-result.negative .balance-value {
+    color: #dc2626;
+}
+
+.balance-warning {
+    font-size: 1rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .amount-preview {
+        padding: 10px 12px;
+    }
+    
+    .preview-text {
+        font-size: 1rem;
+    }
+    
+    .balance-result {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+}

@@ -4,7 +4,7 @@ import { useCustomers } from "../../../hooks/useCustomers";
 import { filterCustomers } from "../../../utils/customerFilters";
 import { MESSAGES } from "../../../constants/messages";
 
-import CustomerHeader from "../../../components/customerManagement/CustomerHeader";
+import CustomerHeader from "../../../components/header/CustomerHeader";
 import CustomerSearch from "../../../components/customerManagement/CustomerSearch";
 import CustomerTable from "../../../components/customerManagement/CustomerTable";
 import EditCustomerModal from '../../../components/customerManagement/modal/EditCustomerModal';

@@ -1,202 +1,70 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React from "react";
+import { useDepositTransaction } from "../../../hooks/useDepositTransaction";
+import { validateTransactionAmount, validateAccountNumber } from "../../../utils/validators";
+import { showError } from "../../../utils/alerts";
+
+import DepositHeader from "../../../components/header/DepositHeader";
+import AccountInfoDisplay from "../../../components/transactionComponent/AccountInfoDisplay";
+import SecurityNotice from "../../../components/ui/SecurityNotice";
+import LoadingSpinner from "../../../components/ui/LoadingSpinner";
+import AmountPreview from "../../../components/transactionComponent/AmountPreview";
+
 import "../../../styles/depositManagementPage.css";
-import Swal from "sweetalert2";
 
 const DepositManagementPage: React.FC = () => {
-    const [accountNumber, setAccountNumber] = useState("");
-    const [amount, setAmount] = useState<number>(0);
-    const [accountName, setAccountName] = useState("");
-    const [statusAccount, setStatusAccount] = useState("");
-    const [currentBalance, setCurrentBalance] = useState(0);
-    const [loading, setLoading] = useState(false);
+    const {
+        accountNumber,
+        amount,
+        accountInfo,
+        loading,
+        setAccountNumber,
+        setAmount,
+        searchAccount,
+        processDeposit
+    } = useDepositTransaction();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        let accountOwner = "";
-        let status = "";
-        let balance = 0;
 
-        // Validasi input
-        if (amount <= 0) {
-            Swal.fire({
-                title: 'Peringatan!',
-                text: 'Jumlah setoran harus lebih dari Rp 0',
-                icon: 'warning',
-                confirmButtonColor: '#f59e0b'
-            });
+        // Client-side validation
+        const accountError = validateAccountNumber(accountNumber);
+        if (accountError) {
+            showError('Peringatan!', accountError);
             return;
         }
 
-        // Cari nama pemilik rekening berdasarkan nomor rekening
-        try {
-            const token = localStorage.getItem("token");
-            console.log("Searching for account:", accountNumber);
-            const response = await axios.get(`http://localhost:8080/api/accounts/search`, {
-                params: { accountNumber },
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            console.log("Search account response:", response.data);
-            if (response.data.length === 0) {
-                Swal.fire({
-                    title: '❌ Gagal!',
-                    text: 'Rekening tidak ditemukan. Silakan periksa kembali nomor rekening.',
-                    icon: 'error',
-                    confirmButtonColor: '#ef4444'
-                });
-                return;
-            }
-
-            accountOwner = response.data[0].customerName;
-            status = response.data[0].status;
-            balance = response.data[0].balance;
-
-            // lakukan konversi nama status dari "ACTIVE" menjadi "Aktif", "INACTIVE" menjadi "Tidak Aktif"
-            if (status === "ACTIVE") {
-                status = "Aktif";
-            } else if (status === "INACTIVE") {
-                status = "Tidak Aktif";
-            }
-
-            setStatusAccount(status);
-            setAccountName(accountOwner);
-            setCurrentBalance(balance);
-        } catch (err) {
-            Swal.fire({
-                title: '❌ Gagal!',
-                text: 'Terjadi kesalahan saat mencari rekening',
-                icon: 'error',
-                confirmButtonColor: '#ef4444'
-            });
+        const amountError = validateTransactionAmount(amount);
+        if (amountError) {
+            showError('Peringatan!', amountError);
             return;
         }
 
-        // Konfirmasi sebelum melakukan transaksi
-        const confirmation = await Swal.fire({
-            title: '💰 Konfirmasi Setor Tunai',
-            html: `
-                <div class="confirmation-detail">
-                    <div class="confirmation-item">
-                        <span class="label">No. Rekening:</span>
-                        <span class="value">${accountNumber}</span>
-                    </div>
-                    <div class="confirmation-item">
-                        <span class="label">Atas Nama:</span>
-                        <span class="value">${accountOwner}</span>
-                    </div>
-                    <div class="confirmation-item">
-                        <span class="label">Status Rekening:</span>
-                        <span class="value">${status}</span>
-                    </div>
-                    <div class="confirmation-item">
-                        <span class="label">Jumlah Setoran:</span>
-                        <span class="value amount">${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
-                    </div>
-                     <div class="confirmation-item">
-                        <span class="label">Saldo Saat Ini:</span>
-                        <span class="value balance">${balance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
-                    </div>
-                    <div class="confirmation-item saldo-akhir">
-                        <span class="label">Saldo Setelah Setoran:</span>
-                        <span class="value new-balance">${(balance + amount).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
-                    </div>
-                    <div class="confirmation-note">
-                        <small>⚠️ Pastikan data sudah benar sebelum melanjutkan</small>
-                    </div>
-                </div>
-            `,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: '✅ Ya, Setor Sekarang',
-            cancelButtonText: '❌ Batal',
-            confirmButtonColor: '#10b981',
-            cancelButtonColor: '#6b7280',
-            customClass: {
-                popup: 'deposit-confirmation-popup'
-            }
-        });
+        // Search account if not already searched
+        if (!accountInfo) {
+            const found = await searchAccount(accountNumber);
+            if (!found) return;
+        }
 
-        if (!confirmation.isConfirmed) return;
+        // Process deposit
+        await processDeposit();
+    };
 
-        setLoading(true);
-
-        // Lakukan transaksi setor tunai
-        try {
-            // Cek status rekening, hanya boleh setor jika status "Aktif"
-            if (status !== "Aktif") {
-                Swal.fire({
-                    title: '❌ Gagal!',
-                    text: 'Rekening tidak aktif. Setoran hanya dapat dilakukan pada rekening yang aktif.',
-                    icon: 'error',
-                    confirmButtonColor: '#ef4444'
-                });
-                return;
-            }
-
-            const token = localStorage.getItem("token");
-
-            await axios.post(`http://localhost:8080/api/accounts/deposit/${accountNumber}`, {
-                amount
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            // Success notification
-            await Swal.fire({
-                title: '🎉 Berhasil!',
-                html: `
-                    <div class="success-detail">
-                        <p>Setoran tunai telah berhasil diproses</p>
-                        <div class="transaction-summary">
-                            <div class="summary-item">
-                                <span>Jumlah Setoran:</span>
-                                <span class="amount">${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span>Saldo Saat ini:</span>
-                                <span>${(balance + amount).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
-                            </div>
-                        </div>
-                    </div>
-                `,
-                icon: 'success',
-                confirmButtonColor: '#10b981',
-                timer: 3000,
-                timerProgressBar: true
-            });
-
-            // Reset form
-            setAccountNumber("");
-            setAmount(0);
-            setAccountName("");
-            setStatusAccount("");
-            setCurrentBalance(0);
-
-        } catch (err: any) {
-            Swal.fire({
-                title: '❌ Gagal!',
-                text: err.response?.data?.message || 'Terjadi kesalahan saat memproses setoran',
-                icon: 'error',
-                confirmButtonColor: '#ef4444'
-            });
-        } finally {
-            setLoading(false);
+    const handleAccountNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setAccountNumber(e.target.value);
+        // Reset account info when account number changes
+        if (accountInfo) {
+            // Could add debounced search here
         }
     };
 
     return (
         <div className="deposit-page">
             <div className="deposit-container">
-                {/* Header Section */}
-                <div className="deposit-header">
-                    <div className="header-icon">💰</div>
-                    <h1 className="header-title">Setor Tunai</h1>
-                    <p className="header-subtitle">Lakukan penyetoran tunai dengan mudah dan aman</p>
-                </div>
+                <DepositHeader />
 
-                {/* Form Section */}
                 <div className="deposit-form-container">
                     <form className="deposit-form" onSubmit={handleSubmit}>
+                        {/* Account Number Input */}
                         <div className="form-group">
                             <label htmlFor="accountNumber" className="form-label">
                                 <span className="label-icon">🏦</span>
@@ -208,32 +76,23 @@ const DepositManagementPage: React.FC = () => {
                                     type="text"
                                     className="form-input"
                                     value={accountNumber}
-                                    onChange={e => setAccountNumber(e.target.value)}
+                                    onChange={handleAccountNumberChange}
                                     required
                                     placeholder="Masukkan nomor rekening"
                                     disabled={loading}
                                 />
                                 <div className="input-border"></div>
                             </div>
-                            {accountName && (
-                                <div className="account-info">
-                                    <span className="info-icon">👤</span>
-                                    <span className="info-text">Atas Nama: <strong>{accountName}</strong></span>
-                                </div>
+
+                            {accountInfo && (
+                                <AccountInfoDisplay
+                                    customerName={accountInfo.customerName}
+                                    balance={accountInfo.balance}
+                                />
                             )}
                         </div>
 
-                        {currentBalance > 0 && (
-                            <div className="balance-display">
-                                <div className="balance-card">
-                                    <span className="balance-label">💰 Saldo Tersedia</span>
-                                    <span className="balance-amount">
-                                        {currentBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
-                                    </span>
-                                </div>
-                            </div>
-                        )}
-
+                        {/* Amount Input */}
                         <div className="form-group">
                             <label htmlFor="amount" className="form-label">
                                 <span className="label-icon">💵</span>
@@ -256,30 +115,24 @@ const DepositManagementPage: React.FC = () => {
                                 </div>
                                 <div className="input-border"></div>
                             </div>
-                            {amount > 0 && (
-                                <div className="amount-preview">
-                                    <span className="preview-text">
-                                        💰 {amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
-                                    </span>
-                                    {currentBalance > 0 && (
-                                        <span className="final-balance">
-                                            Saldo Akhir: {(currentBalance + amount).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
-                                        </span>
-                                    )}
-                                </div>
+
+                            {amount > 0 && accountInfo && (
+                                <AmountPreview
+                                    amount={amount}
+                                    currentBalance={accountInfo.balance}
+                                    transactionType="deposit"
+                                />
                             )}
                         </div>
 
+                        {/* Submit Button */}
                         <button
                             type="submit"
                             className={`submit-btn ${loading ? 'loading' : ''}`}
                             disabled={loading}
                         >
                             {loading ? (
-                                <>
-                                    <div className="loading-spinner"></div>
-                                    <span>Memproses...</span>
-                                </>
+                                <LoadingSpinner size="small" message="Memproses..." />
                             ) : (
                                 <>
                                     <span className="btn-icon">💸</span>
@@ -290,19 +143,7 @@ const DepositManagementPage: React.FC = () => {
                     </form>
                 </div>
 
-                {/* Security Notice */}
-                <div className="security-notice">
-                    <div className="notice-header">
-                        <span className="security-icon">🔐</span>
-                        <h3>Protokol Keamanan</h3>
-                    </div>
-                    <ul className="security-list">
-                        <li>✓ Verifikasi identitas nasabah (KTP/SIM)</li>
-                        <li>✓ Pastikan tanda tangan sesuai</li>
-                        <li>✓ Catat nomor transaksi</li>
-                        <li>✓ Hitung uang di depan nasabah</li>
-                    </ul>
-                </div>
+                <SecurityNotice />
             </div>
         </div>
     );
