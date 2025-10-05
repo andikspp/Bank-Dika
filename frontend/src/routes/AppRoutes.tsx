@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthContext } from "../features/auth/AuthContext";
-import { User } from "../features/auth/types";
-import { useInitialUser } from "../features/auth/hooks/useInitialUser";
+import { AuthContext } from "../context/AuthContext";
+import { AuthUser } from "../types/User";
+import { useInitialUser } from "../hooks/useInitialUser";
 import ProtectedRoute from "../components/ProtectedRoute";
 import MainLayout from "../components/layout/MainLayout";
 
@@ -23,7 +23,7 @@ const HistoryManagementPage = React.lazy(() => import("../pages/teller/historyMa
 
 const AppRoutes: React.FC = () => {
     const initialUser = useInitialUser();
-    const [user, setUser] = useState<User | null>(initialUser);
+    const [user, setUser] = useState<AuthUser | null>(initialUser);
 
     return (
         <AuthContext.Provider value={{ user, setUser }}>

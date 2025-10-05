@@ -1,9 +1,9 @@
 import React, { createContext } from "react";
-import { User } from "./types";
+import { AuthUser } from "../types/User";
 
 export interface AuthContextType {
-    user: User | null;
-    setUser?: (user: User | null) => void;
+    user: AuthUser | null;
+    setUser?: (user: AuthUser | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({ user: null });

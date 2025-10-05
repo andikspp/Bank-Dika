@@ -1,7 +1,7 @@
 import React from "react";
 import { UserRole } from "../types/UserRoles";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../features/auth/hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import "../styles/dashboardPage.css";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import CustomerDashboard from "../components/dashboard/CustomerDashboard";

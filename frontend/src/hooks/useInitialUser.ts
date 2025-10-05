@@ -1,7 +1,7 @@
-import { User } from "../types";
+import { AuthUser } from "../types/User";
 import { jwtDecode } from "jwt-decode";
 
-export function useInitialUser(): User | null {
+export function useInitialUser(): AuthUser | null {
     const token = localStorage.getItem("token");
     if (token) {
         try {

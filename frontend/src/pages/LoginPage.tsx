@@ -1,9 +1,9 @@
 import React from 'react';
 import LoginForm from '../components/auth/LoginForm';
-import { User } from "../features/auth/types";
+import { AuthUser } from "../types/User";
 
 interface LoginPageProps {
-    onLogin: (user: User) => void;
+    onLogin: (user: AuthUser) => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {

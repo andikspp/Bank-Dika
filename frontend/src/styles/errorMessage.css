@@ -1,0 +1,235 @@
+/* Base Styles */
+.error-message {
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 1px solid;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+}
+
+.error-full-width {
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.error-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+/* Icon Styles */
+.error-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+/* Text Content */
+.error-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.error-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.error-description {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Dismiss Button */
+.error-dismiss {
+    background: none;
+    border: none;
+    font-size: 1.125rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    color: inherit;
+    opacity: 0.7;
+    flex-shrink: 0;
+    transition: opacity 0.2s;
+}
+
+.error-dismiss:hover {
+    opacity: 1;
+}
+
+.error-dismiss:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+/* Action Buttons */
+.error-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.error-retry-btn {
+    background-color: transparent;
+    border: 1px solid currentColor;
+    color: inherit;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.error-retry-btn:hover {
+    background-color: currentColor;
+    color: white;
+}
+
+.error-retry-btn:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+/* Variant Styles */
+.error-danger {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+
+.error-danger .error-title {
+    color: #b91c1c;
+}
+
+.error-danger .error-actions {
+    border-top-color: #fecaca;
+}
+
+.error-warning {
+    background-color: #fffbeb;
+    border-color: #fed7aa;
+    color: #d97706;
+}
+
+.error-warning .error-title {
+    color: #b45309;
+}
+
+.error-warning .error-actions {
+    border-top-color: #fed7aa;
+}
+
+.error-info {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+    color: #2563eb;
+}
+
+.error-info .error-title {
+    color: #1d4ed8;
+}
+
+.error-info .error-actions {
+    border-top-color: #bfdbfe;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .error-message {
+        padding: 0.875rem;
+        margin: 0.75rem 0;
+    }
+    
+    .error-content {
+        gap: 0.625rem;
+    }
+    
+    .error-icon {
+        font-size: 1.125rem;
+    }
+    
+    .error-title {
+        font-size: 0.925rem;
+    }
+    
+    .error-description {
+        font-size: 0.8rem;
+    }
+    
+    .error-retry-btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .error-danger {
+        background-color: #450a0a;
+        border-color: #7f1d1d;
+        color: #fca5a5;
+    }
+    
+    .error-danger .error-title {
+        color: #fecaca;
+    }
+    
+    .error-warning {
+        background-color: #451a03;
+        border-color: #78350f;
+        color: #fed7aa;
+    }
+    
+    .error-warning .error-title {
+        color: #fbbf24;
+    }
+    
+    .error-info {
+        background-color: #1e3a8a;
+        border-color: #1e40af;
+        color: #bfdbfe;
+    }
+    
+    .error-info .error-title {
+        color: #dbeafe;
+    }
+}
+
+/* Animation */
+.error-message {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .error-message {
+        animation: none;
+    }
+    
+    .error-retry-btn,
+    .error-dismiss {
+        transition: none;
+    }
+}

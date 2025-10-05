@@ -2,10 +2,10 @@ import React, { useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/loginForm.css';
-import { User } from '../../features/auth/types';
+import { AuthUser } from '../../types/User';
 
 interface LoginFormProps {
-    onLogin?: (user: User) => void;
+    onLogin?: (user: AuthUser) => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
