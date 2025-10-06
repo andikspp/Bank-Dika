@@ -1,7 +1,8 @@
 import Swal from 'sweetalert2';
-
+import { AccountInfo } from '../types/Transfer';
 import { formatCurrency } from './formatters';
 
+/*-------Alerts for deposit-------*/
 /**
  * Show a success alert
  * @param title 
@@ -160,5 +161,146 @@ export const showInsufficientBalance = async (amount: number, balance: number) =
         confirmButtonColor: '#ef4444'
     });
 };
+
+/*-------Alert for transfer transactions-------*/
+export class TransferAlerts {
+    static showError(title: string, text: string) {
+        return Swal.fire({
+            title,
+            text,
+            icon: 'error',
+            confirmButtonColor: '#ef4444'
+        });
+    }
+
+    static showWarning(title: string, text: string) {
+        return Swal.fire({
+            title,
+            text,
+            icon: 'warning',
+            confirmButtonColor: '#f59e0b'
+        });
+    }
+
+    static showInsufficientBalance(amount: number, balance: number) {
+        return Swal.fire({
+            title: '❌ Saldo Tidak Mencukupi!',
+            html: `
+                <div class="balance-warning">
+                    <div class="balance-info">
+                        <span class="label">Saldo Tersedia:</span>
+                        <span class="value">${formatCurrency(balance)}</span>
+                    </div>
+                    <div class="balance-info">
+                        <span class="label">Jumlah Transfer:</span>
+                        <span class="value error">${formatCurrency(amount)}</span>
+                    </div>
+                </div>
+            `,
+            icon: 'error',
+            confirmButtonColor: '#ef4444'
+        });
+    }
+
+    static showTransferConfirmation(
+        fromAccountNumber: string,
+        toAccountNumber: string,
+        fromAccountInfo: AccountInfo,
+        toAccountInfo: AccountInfo,
+        amount: number,
+        transferType: string,
+        description?: string
+    ) {
+        return Swal.fire({
+            title: '💸 Konfirmasi Transfer',
+            html: `
+                <div class="confirmation-detail">
+                    <div class="confirmation-item">
+                        <span class="label">Rekening <br> Pengirim:</span>
+                        <span class="value">${fromAccountNumber} - ${fromAccountInfo.customerName}</span>
+                    </div>
+                    <div class="confirmation-item">
+                        <span class="label">Rekening <br> Penerima:</span>
+                        <span class="value">${toAccountNumber} - ${toAccountInfo.customerName}</span>
+                    </div>
+                    <div class="confirmation-item">
+                        <span class="label">Saldo Pengirim:</span>
+                        <span class="value balance">${formatCurrency(fromAccountInfo.balance)}</span>
+                    </div>
+                    <div class="confirmation-item">
+                        <span class="label">Jumlah Transfer:</span>
+                        <span class="value amount">${formatCurrency(amount)}</span>
+                    </div>
+                    <div class="confirmation-item">
+                        <span class="label">Tipe Transfer:</span>
+                        <span class="value">${transferType === 'internal' ? 'Internal' : 'External'}</span>
+                    </div>
+                    <div class="confirmation-item final-balance">
+                        <span class="label">Saldo Setelah Transfer:</span>
+                        <span class="value">${formatCurrency(fromAccountInfo.balance - amount)}</span>
+                    </div>
+                    ${description ? `
+                    <div class="confirmation-item">
+                        <span class="label">Deskripsi:</span>
+                        <span class="value">${description}</span>
+                    </div>
+                    ` : ''}
+                    <div class="confirmation-note">
+                        <small>⚠️ Pastikan data transfer sudah benar sebelum melanjutkan</small>
+                    </div>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '✅ Ya, Transfer Sekarang',
+            cancelButtonText: '❌ Batal',
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            customClass: {
+                popup: 'transfer-confirmation-popup'
+            }
+        });
+    }
+
+    static showSuccess(
+        amount: number,
+        fromAccountNumber: string,
+        toAccountNumber: string,
+        fromAccountName: string,
+        toAccountName: string,
+        remainingBalance: number
+    ) {
+        return Swal.fire({
+            title: '🎉 Berhasil!',
+            html: `
+                <div class="success-detail">
+                    <p>Transfer telah berhasil diproses</p>
+                    <div class="transaction-summary">
+                        <div class="summary-item">
+                            <span>Jumlah Transfer:</span>
+                            <span class="amount">${formatCurrency(amount)}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Dari:</span>
+                            <span>${fromAccountNumber} - ${fromAccountName}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Ke:</span>
+                            <span>${toAccountNumber} - ${toAccountName}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Saldo Tersisa:</span>
+                            <span>${formatCurrency(remainingBalance)}</span>
+                        </div>
+                    </div>
+                </div>
+            `,
+            icon: 'success',
+            confirmButtonColor: '#10b981',
+            timer: 4000,
+            timerProgressBar: true
+        });
+    }
+}
 
 
